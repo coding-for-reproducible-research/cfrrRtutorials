@@ -451,14 +451,17 @@ So far we have considered a single case of regression with a continuous predicto
 Regression analysis is sometimes categorised into different types:
 
 *Simple Linear Regression*
+
 * 1 continuous outcome variable
 * 1 predictor variable
 
 *Multiple Linear Regression*
+
 * 1 continuous outcome variable
 * > 1 predictor variable
 
 *Multivariate Linear Regression*
+
 * multiple correlated dependent variables
 * > 0 predictor variable
 
