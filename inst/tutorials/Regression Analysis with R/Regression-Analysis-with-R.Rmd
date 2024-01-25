@@ -250,8 +250,8 @@ question("What is the value of the intercept?",
   allow_retry = TRUE
 ),
 question("The slope coefficient is 0.04, which is the correct interpretation?",
-  answer("bmi increases by 0.13 per year of age", correct = TRUE),
-  answer("age increases by 0.13 year per 1 unit of bmi"),
+  answer("bmi increases by 0.04 per year of age", correct = TRUE),
+  answer("age increases by 0.04 year per 1 unit of bmi"),
   allow_retry = TRUE
 ), 
 question("What is the predicted BMI for a participant aged 45?",
