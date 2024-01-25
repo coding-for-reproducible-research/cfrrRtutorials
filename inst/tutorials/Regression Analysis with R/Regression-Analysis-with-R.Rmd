@@ -495,7 +495,7 @@ plot(lm(weight ~ exercise_hours, data  = demoDat))
 
 **Plot 2: Normal QQ** Points largely on the diagonal line int he centre of the distribution but some deviation at both extremes.
 
-**Plot 3: Scale-Location** We see the vertical lines again and more points of the left hand side.Possibly some wierd empty spaces, where points are absent on the right hand side. 
+**Plot 3: Scale-Location** We see the vertical lines again and more points of the right hand side.Possibly some wierd empty spaces, where points are absent on the left hand side. 
 
 **Plot 4: Residuals vs Leverage** There are some samples with extreme values (on the far right) not quite in line the rest of the points but not outside the accepted region.  
 
