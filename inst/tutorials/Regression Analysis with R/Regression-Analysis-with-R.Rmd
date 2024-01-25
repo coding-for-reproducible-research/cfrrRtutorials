@@ -606,7 +606,7 @@ Fit and interpret the following regress models.
 
 ```
 
-```{r multiple-regression-solution, exercise = TRUE}
+```{r multiple-regression-solution}
 
 summary(lm(bmi ~ age + exercise_hours))
 summary(lm(bmi ~ age + exercise_hours + alcohol_units))
