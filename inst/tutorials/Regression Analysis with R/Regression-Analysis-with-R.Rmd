@@ -954,7 +954,7 @@ We can visualise the transform between the right hand side and the left hand sid
 xseq <- seq(-6,6, 0.1)
 yseq <- exp(xseq)/(exp(xseq)+1)
 
-plot(xseq, yseq,type = "line", xlab = "X", ylab = "Y", lwd = 1.5)
+plot(xseq, yseq,type = "l", xlab = "X", ylab = "Y", lwd = 1.5)
 abline(h = 0.5, lty = 2)
 abline(h = 1)
 abline(h = 0)
