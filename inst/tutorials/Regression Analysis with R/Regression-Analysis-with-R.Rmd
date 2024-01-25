@@ -68,7 +68,7 @@ This course will not include an introduction to R, or how to setup and use R or 
 
 ### Course Notes
 
-This tutorial contains the course notes, example code snippets plus explainations, exercises for you to try with solutions and quiz questions to test your knowledge. Attend a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these have also been designed such that you should also be able to work through them independently. 
+This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attend a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these have also been designed such that you should also be able to work through them independently. 
 
 You can navigate through the section using the menu on the side. 
 
@@ -116,7 +116,7 @@ You may have learnt this previously as
 
 $$Y = c  + m X$$
 
-These two equations are equivalent we have just used different notation for the coefficients. The coefficients are the value that we multiple our predictor variables by, and what we want to estimate from our data. They are sometimes called parameters.
+These two equations are equivalent we have just used different notation for the coefficients. The coefficients are the value that we multiply our predictor variables by, and what we want to estimate from our data. They are sometimes called parameters.
 
 There are two regression coefficients in this equation: 
 
@@ -160,7 +160,7 @@ What you should observe is that changing $\theta_{1}$ changes the slope of the l
 
 This is the coefficient that captures the relationship between our variables X and Y and enables us to model an unlimited number of linear relationships between these variables.  
 
-You might also have observed that if we change the value of $\theta_0$, i.e the intercept the line moves up and down. The intercept is important if we are interested in making predictions but not so important if we want to understand how changing X influences Y. 
+You might also have observed that if we change the value of $\theta_0$, i.e the intercept, the line moves up and down. The intercept is important if we are interested in making predictions but not so important if we want to understand how changing X influences Y. 
 
 ### Fitting a Simple Linear Regression Model in R
 
@@ -314,11 +314,11 @@ For hypothesis testing of a regression coefficient for X the assumptions are:
 * Samples are independent.
 * Variances in each group are equal.
 
-Let's revist our R code to see how we can extract this information for our regression model. 
+Let's revisit our R code to see how we can extract this information for our regression model. 
 
 ### Hypothesis Testing of Regression Parameters in R 
 
-We don't actually need to get R to do any further calculations to get the p-values for our statistical hypothesis testing. This is donewhen you execute `lm()`. By default though it does not print the output to console We do need to use some additional commands to extract this information. This is largely acheived with the  `summary()` function. We could chain these commands together i.e. `summary(lm()))` or we could save the output of `lm()` to a variable and run it as two lines of code as shown below:
+We don't actually need to get R to do any further calculations to get the p-values for our statistical hypothesis testing. This is done when you execute `lm()`. By default though it does not print the output to console. We do need to use some additional commands to extract this information. This is largely achieved with the  `summary()` function. We could chain these commands together i.e. `summary(lm()))` or we could save the output of `lm()` to a variable and run it as two lines of code as shown below:
 
 ```{r}
 model<-lm(weight ~ height, data = demoDat)
@@ -407,9 +407,9 @@ question("Which of these statements are true for the relationship between BMI an
 
 ### Checking the Assumptions of Linear Regression
 
-As we mentionned before, by making assumptions about the characteristics of our data we can do significance testing. It is prudent therefore, to check whether these assumptions hold true so that we can be confident in the conclusion we have deduced However, this is far from common practise. There are a number of reasons why. 
+As we mentionned before, by making assumptions about the characteristics of our data we can do significance testing. It is prudent therefore, to check whether these assumptions hold true so that we can be confident in the conclusion we have deduced. However, this is far from common practise. There are a number of reasons why. 
 
-Firstly, the assumptions are to some degree subjective and assessing them is not an exact science. It can be hard to know what to look for if you don't have much experience in fitting regression models. The underlying mathematics of regression is robust to some deviation from these assumptions. So we there is some tolerence around these we can allow. Common tools to assess properties like Normality might not place the threshold for deviation in the same place as the statistical model needs. Often they are more conservative and therefore you might prematurely reject a valid result. 
+Firstly, the assumptions are to some degree subjective and assessing them is not an exact science. It can be hard to know what to look for if you don't have much experience in fitting regression models. The underlying mathematics of regression is robust to some deviation from these assumptions. So there is some tolerence around these we can allow. Common tools to assess properties like Normality might not place the threshold for deviation in the same place as the statistical model needs. Often they are more conservative and therefore you might prematurely reject a valid result. 
 
 Secondly, (and perhaps most pertinent) it is not possible to check many of the assumptions without fitting the model first. Therefore, you run the risk that if you find a significant effect you get excited and forget to check the assumptions in favour of persuing a more exciting follow up question. However, as the assumptions are essential for deriving the formula to estimate and test the regresssion parameters, if they are violated we need to be cautious about accepting the results, especially if they are significant.
 
@@ -472,9 +472,9 @@ Are any samples overly influencing the fit?
 
 * any values in the upper right or lower right corner or cases outside of a dashed red line, indicates samples that don’t fit the trend in the data and are biasing the result.
 
-As these require a subjective assessment of the plots, it can be difficult to decide whether the plot looks good or bad. This is particularly challenging where the data has only a small number of observations. We should also bare in mind that linear regression is fairly robust to the violation of many of the assumptions. Therefore, even if the plots don't look ideal, that does not automatically mean that the result is invalid. This is where statistics moves away from a fixed quantity and into a gray area of subjectivity. Experience is the only real aid here, the more regression models you fit and the more plots you look at enables you to gauge what is a major or minor deviation. 
+As these require a subjective assessment of the plots, it can be difficult to decide whether the plot looks good or bad. This is particularly challenging where the data has only a small number of observations. We should also bear in mind that linear regression is fairly robust to the violation of many of the assumptions. Therefore, even if the plots don't look ideal, that does not automatically mean that the result is invalid. This is where statistics moves away from a fixed quantity and into a gray area of subjectivity. Experience is the only real aid here, the more regression models you fit and the more plots you look at enables you to gauge what is a major or minor deviation. 
 
-For contrast, let's fit another linear model where the assumptions might not hold true. Let's look at the relationship between weight and hours exercised per week (`exercise_hours`). When we asked the participants how much exercise they did each week they were effectively counting the number of hours, so this variable is a count variable. Count varibles are typically poisson distributed and are limited to whole, positive numbers, so not a continuous variable and therefore potentially violating one of our assumptions.   
+For contrast, let's fit another linear model where the assumptions might not hold true. Let's look at the relationship between weight and hours exercised per week (`exercise_hours`). When we asked the participants how much exercise they did each week they were effectively counting the number of hours, so this variable is a count variable. Count varibles are typically Poisson distributed and are limited to whole, positive numbers, so not a continuous variable and therefore potentially violating one of our assumptions.   
 
 
 ```{r, echo = FALSE}
@@ -534,11 +534,11 @@ So far we have considered a single type of regression analysis with one continuo
 * multiple variables
 * different relationships between variables 
 
-We will now look at how we extend the methodology to allow more complex analysis designs. You should think of regression as a modular approach which you select the nesecary components depending on the 
+We will now look at how we extend the methodology to allow more complex analysis designs. You should think of regression as a modular approach which you select the necessary components depending on the 
 
 * properties of the outcome variable(s)
 * properties of the predictor variable(s)
-* the relathionship that you want to model between each predictor variable and outcome variable.
+* the relationship that you want to model between each predictor variable and outcome variable.
 
 Different types of regression analysis you may be familar with include:
 
@@ -636,11 +636,11 @@ question("What happens to the results for exercise when alcohol is also included
 There are many reasons why you might want to model multiple predictor variables simultaneously. 
 
 1. You are interested in understanding the effects of multiple different factors.
-2. You think their are some variables that might bias or confound your analysis and you want to adjust for this. 
+2. You think there are some variables that might bias or confound your analysis and you want to adjust for this. 
 
-In second scenario some predictor variables are just included so that their effect is captured, but you are not explicitly interested in their results. 
+In the second scenario, some predictor variables are just included so that their effect is captured, but you are not explicitly interested in their results. 
 
-In the first scenario, you might be interested in the quantifying the effect of each predictor term individually. This can be acheived by looking at the regression coefficients for each term in turn, as we did for the example above. Alternatively you might be interested in the combined effect of multiple terms in predicting an outcome. We can do this from our regression analysis by reframing the null and alternative hypothesis. 
+In the first scenario, you might be interested in quantifying the effect of each predictor term individually. This can be achieved by looking at the regression coefficients for each term in turn, as we did for the example above. Alternatively you might be interested in the combined effect of multiple terms in predicting an outcome. We can do this from our regression analysis by reframing the null and alternative hypothesis. 
 
 Let's define our regression model for two predictor variables $X_1$ and $X_2$ as:
 
@@ -686,7 +686,7 @@ anova(model.null, model.full)
 ```
 
 
-We can see in the output a table of test statistics where we can see an F-value is reported along with it's p-value. In this example we have a (non-)very) significant p-value. Therefore we conclude that a model with both age and height is significantly better than a model with just the intercept. From our analysis of the individual regression coefficients we know that this is predominantly due to the height variable. 
+We can see in the output a table of test statistics where we can see an F-value is reported along with its p-value. In this example we have a (very) significant p-value. Therefore we conclude that a model with both age and height is significantly better than a model with just the intercept. From our analysis of the individual regression coefficients we know that this is predominantly due to the height variable. 
 
 Now it may be that apart from the use of the F-distribution this overlap with ANOVA does not fit with your current understanding of when you use ANOVA (typically with a categorical variable with > 2 groups). In the next section we will draw out this relationship further. 
    
@@ -697,9 +697,9 @@ So far we have only considered continuous predictor variables such as height and
 
 We will consider a categorical varible, as any scenario where the responses can be grouped into a finite number of categories or classes. In R this type of variable is called a `factor`. 
 
-First, let's consider the simpliest type of categorical variable to model, one with only two options or groups. Sometimes this specific instance is called a binary variable. While in your data collection each group might have a text label to describe what the response means for that observation, for mathematical modelling we need to represent this binary variable numerically. This is acheived by recoding the variable such that one group is represented by 0 and one group by 1.With this coding it might be refered to as an indicator or dummy variable, where the 1 is used to specify the presence of some feature (like an exposure) and 0 the absence of that feature. 
+First, let's consider the simplest type of categorical variable to model, one with only two options or groups. Sometimes this specific instance is called a binary variable. While in your data collection each group might have a text label to describe what the response means for that observation, for mathematical modelling we need to represent this binary variable numerically. This is acheived by recoding the variable such that one group is represented by 0 and one group by 1. With this coding it might be refered to as an indicator or dummy variable, where the 1 is used to specify the presence of some feature (like an exposure) and 0 the absence of that feature. 
 
-For example for the variable sex, we could represent females with 0 and males with 1 and the variable therefore indicators who is male. Note that in R if you include a factor variable in your regression model which has text labels to indicate the `levels`, it will automatically do this numerical recoding for you without you needing to know about it. The default behaviour is for the first category alphabetically to be assigned 0 and the second category to be assigned 1. This is important to remember for interpretation later.
+For example for the variable sex, we could represent females with 0 and males with 1 and the variable therefore indicates who is male. Note that in R if you include a factor variable in your regression model which has text labels to indicate the `levels`, it will automatically do this numerical recoding for you without you needing to know about it. The default behaviour is for the first category alphabetically to be assigned 0 and the second category to be assigned 1. This is important to remember for interpretation later.
 
 We the define our regression model as we did for continuous variables.
 For example to test for a relationship between sex and weight we can use the following code:
@@ -726,7 +726,7 @@ In this equation we multiply $\theta_1$ by 1 which can be simplified to $\theta_
 
 This helps us understand how we interpret the value of the regression coefficient for a binary variable. $\theta_1$ is the only part of the equation that differs between the predictions for males and females. Therefore it has to capture the nessecary (mean) difference between the groups. More than that, it is not present in the equation for females but is present in the equation for males, so it specifically captures the difference in males relative to females. That means if it is positive, males have a higher mean than females. If it is negative males have a lower mean than females. 
 
-The choice of how we code this variable is academic, the magnitude of the estimate will be the same, but the direction (i.e.) the sign would switch if instead we had males = 0 and females = 1.
+The choice of how we code this variable is academic, the magnitude of the estimate will be the same, but the direction (i.e. the sign) would switch if instead we had males = 0 and females = 1.
 
 Let's fit this model to our data:
 
@@ -755,13 +755,13 @@ Recall here that we have used the t-distribtion to test for a significant relati
 t.test(weight ~ sex, data = demoDat, var.equal = TRUE)
 ```
 
-That is because these are mathematically equivalent. If your regression model has a continuous outcome variable and a single binary predictor variable then you have implemented a t-test. It is worth baring in mind that regression is a much more flexible framework than a t-test. It can handle the inclusion of more than one predictor variable. So if you think a t-test is what you need but you also want to be to control for other confounders, regression will allow you to do this. 
+That is because these are mathematically equivalent. If your regression model has a continuous outcome variable and a single binary predictor variable then you have implemented a t-test. It is worth bearing in mind that regression is a much more flexible framework than a t-test. It can handle the inclusion of more than one predictor variable. So if you think a t-test is what you need but you also want to be to control for other confounders, regression will allow you to do this. 
 
 #### Categorical Variables with > 2 Groups
 
-Regardless of how many groups your categorical variable has, it needs to recoded numerically for it to be included in any regression framework. The fundamental principle here is that for a categorical variable with m different groups, we need m-1 binary variables to parasimoneously code enough unique combinations so that each group can be differentiated in the model. We saw this already for a binary categorical variables with two groups, needing the addition of one binary variable. 
+Regardless of how many groups your categorical variable has, it needs to recoded numerically for it to be included in any regression framework. The fundamental principle here is that for a categorical variable with m different groups, we need m-1 binary variables to parsimoneously code enough unique combinations so that each group can be differentiated in the model. We saw this already for a binary categorical variables with two groups, needing the addition of one binary variable. 
 
-Let's consider a slightly more complicated example - a categorical variable with three options. Here we will use participant ethnicity as an example. In our dataset there are three groups: "African American", "Asian" and "European". To represent this numerically as a series of binary variables we would need two indicator variables. The table below shows how for each of the three options, across these two indicator variables ("Asian" and "European"), we can unique code for any of the three options. For each participant of these ethicinity we replace the cetgorical variable with these values for the two new indicator variables. A third indicator variable for the third group ("African American") would be redundant, and introduce a problem for hypothesis testing whereby we assume that the predictor variables are dependent.  
+Let's consider a slightly more complicated example - a categorical variable with three options. Here we will use participant ethnicity as an example. In our dataset there are three groups: "African American", "Asian" and "European". To represent this numerically as a series of binary variables we would need two indicator variables. The table below shows how for each of the three options, across these two indicator variables ("Asian" and "European"), we can unique code for any of the three options. For each participant of these ethicinity we replace the categorical variable with these values for the two new indicator variables. A third indicator variable for the third group ("African American") would be redundant, and introduce a problem for hypothesis testing whereby we assume that the predictor variables are dependent.  
 
 
 | Eye Colour      | Asian | European |
@@ -775,7 +775,7 @@ To add this three level factor into our model we need to add both of these dummy
 
 $$weight = \theta_0 + \theta_1 Asian + \theta_2 European$$
 
-As before when we specify the model we want to fit in R, we don't need to explicit state the regression coefficients. In a similar way, we don't need to manually add the relevant dummy variables, if you tell R to fit a regression model with a categorical variable, it will automatically add the relevant number of dummy variables. It will do this, even if it is not nesscessarily coded as a factor variable. 
+As before when we specify the model we want to fit in R, we don't need to explicitly state the regression coefficients. In a similar way, we don't need to manually add the relevant dummy variables, if you tell R to fit a regression model with a categorical variable, it will automatically add the relevant number of dummy variables. It will do this, even if it is not nesscessarily coded as a factor variable. 
 
 For this example the following code is sufficient for this model.
 
@@ -786,7 +786,7 @@ summary(model)
 
 We can see from the coefficients table in the output, there are three rows for the three regression parameters: the intercept and the two slope parameters for the two dummy variables. This is despite only having one variable on the right hand side when we coded the model. We know which coefficient is which as R has appended which group that variable is an indicator for onto the row name.
 
-As these are dummy variables, the interpretation of the estimated effect (i.e. regression coefficient) for each of these is the same as for the binary variable. It cpatures the mean difference for that group relative to the baseline or reference group. Remember R sets the first group alphabetically as the baseline, by default. Therefore, the `ethnicityAsian` row is estimating the mean difference between Asians and African Americans, while the `ethnicityEuropean` row is estimating the mean difference between the Europeans and African Americans. In this model it is also worth remembering that the intercept, gives you the mean value of the outcome (i.e. weight) when the predictor variables are equal to 0. In the table above we can see that when both predictor variables are 0, the observation is an African American. Therefore we can intepret the value of theintercept as the mean of the African Americians (i.e. the reference group). By adding on the values of either regression coefficient to the intercept we can get the mean value of the other two ethnic groups. 
+As these are dummy variables, the interpretation of the estimated effect (i.e. regression coefficient) for each of these is the same as for the binary variable. It captures the mean difference for that group relative to the baseline or reference group. Remember R sets the first group alphabetically as the baseline, by default. Therefore, the `ethnicityAsian` row is estimating the mean difference between Asians and African Americans, while the `ethnicityEuropean` row is estimating the mean difference between the Europeans and African Americans. In this model it is also worth remembering that the intercept gives you the mean value of the outcome (i.e. weight) when the predictor variables are equal to 0. In the table above we can see that when both predictor variables are 0, the observation is an African American. Therefore we can intepret the value of the intercept as the mean of the African Americians (i.e. the reference group). By adding on the values of either regression coefficient to the intercept we can get the mean value of the other two ethnic groups. 
 
 ### Regression with Categorical Variables Exercise
 
@@ -827,9 +827,9 @@ quiz(caption = "Questions on the exercise above.",
 ```
 
 
-We can do significance testing for each dummy variable in the same way as we have done up to this point. Determining if the regression coefficient is non-zero means that that term significantly influences the outcome and a relationship between that variable and the outcome can be concluded. In the example above between weight and scoicoeconomic group, both the p-values for both dummy variables are < 0.05. Therefore we can conclude that there is a significant difference in the mean between the high socioeconomic group and the low socioeconomic groups AND there is a significant difference in the mean weight between the middle and high socioeconomic groups. In this situation it is fairly straightforward to draw a conclusion.   
+We can do significance testing for each dummy variable in the same way as we have done up to this point. Determining if the regression coefficient is non-zero means that that term significantly influences the outcome and a relationship between that variable and the outcome can be concluded. In the example above between weight and socioeconomic group, both the p-values for both dummy variables are < 0.05. Therefore we can conclude that there is a significant difference in the mean between the high socioeconomic group and the low socioeconomic groups AND there is a significant difference in the mean weight between the middle and high socioeconomic groups. In this situation it is fairly straightforward to draw a conclusion.   
 
-But often when we have a categorical variable with more than two groups our question is more broadly is there adifference across the groups? In this situation we are interesting in whether any of the dummary variables have an effect on the model. We have slightly different null hyothesis for this statistical test.
+But often when we have a categorical variable with more than two groups our question is more broadly is there a difference across the groups? In this situation we are interesting in whether any of the dummy variables have an effect on the model. We have slightly different null hyothesis for this statistical test.
 
 For the regression model
 
@@ -868,7 +868,7 @@ anova(model.null, model.full)
 ```
 
 
-We have done an ANOVA and used the F-distribution. We can see in the output a table of test statistics where we can see an F-value is reported along with it's p-value. In this example we have a non-significant p-value, that is greater than 0.05.
+We have done an ANOVA and used the F-distribution. We can see in the output a table of test statistics where we can see an F-value is reported along with its p-value. In this example we have a non-significant p-value, that is greater than 0.05.
 
 When we are testing a categorical variable with more than two groups we are asking the question is the mean of the outcome different across these groups? Posing the questions like this, might remind you of the situation you may have been told you use an ANOVA for. And indeed we did. However, this is one very specific example where an ANOVA can be used. Reframing your understanding of ANOVA for comparing regression models, makes it a much more widely usable concept. Again, like with the t-test if you think of it in this context you can then use it in combination with the other benefits of regression analysis, such as different types of outcome variables or multiple predictor variables. 
 
@@ -942,7 +942,7 @@ question("Is there a significant relationship between ethnicity and bmi?",
 
 So far all the examples have assumed we have a continous outcome we want to predict. But this is unlikely to be the case all of the time. What if we want to predict a binary variable, such as case control status or another type of indicator variable. We can't use the traditional linear regression techniques we have discussed so far because our outcome is now discrete (coded 0 or 1) but our linear combination of predictor variables can take value. We need to use a function to translate this continous value into our 0,1 discrete code. 
 
-To do this we use the logitisc function, and hence this class of regression models is called logitstic regression. 
+To do this we use the logistic function, and hence this class of regression models is called logistic regression. 
 
 The logistic function is defined as 
 
@@ -962,7 +962,7 @@ abline(h = 0)
 ```
 
 
-While the combination of X variables can take any value from - infinity to infinity, the Y value is constrained to between 0 and 1. It is still a continous function, so we haven't quite got to our desired outcome of a binary 0,1 variable. With Y now constrained to fall between 0 and 1 we can interpet it as a probability, the probability of being a case. To transform this to taken either the value 0 or the value 1, we apply a threshold of 0.5. If the predicted Y > 0.5 then Y is that observation is classed as a case (i.e. Y = 1) whereaseif predicted Y < 0.5, then that observation is classed as a control (i.e. Y = 0). In an ideal world we want our predictions to be definitive. So as well as being constrained to giving a value between 0 and 1, the transformation also has the desirable property of spending most of it's time at the extremes (i.e. 0 or 1) and not much time in the middle (i.e. around 0.5).
+While the combination of X variables can take any value from - infinity to infinity, the Y value is constrained to between 0 and 1. It is still a continous function, so we haven't quite got to our desired outcome of a binary 0,1 variable. With Y now constrained to fall between 0 and 1 we can interpet it as a probability, the probability of being a case. To transform this to taken either the value 0 or the value 1, we apply a threshold of 0.5. If the predicted Y > 0.5 then Y is that observation is classed as a case (i.e. Y = 1) whereas if predicted Y < 0.5, then that observation is classed as a control (i.e. Y = 0). In an ideal world we want our predictions to be definitive. So as well as being constrained to giving a value between 0 and 1, the transformation also has the desirable property of spending most of it's time at the extremes (i.e. 0 or 1) and not much time in the middle (i.e. around 0.5).
 
 After applying the link function, technically, logistic regression is estimating the log odds of being a case. So our equation becomes 
 
@@ -1001,7 +1001,7 @@ exp(coef(model.log))
 
 We can see that the odds ratios for a 1 unit icrease of BMI is a `r signif(exp(coef(model.log))["bmi"], 3)` times more likely to develop Type 2 Diabetes.
 
-Significance testing is conceptually the same as for linear regression, whereby each regression coefficient (i.e. log odds ratio) is tested to see if it is non-zero. It differs though it how it calculated. As we are no longer able to derive an exact solution, we have to use iterative method to find the best estimates. This means you sometimes might get warnings that your model failed to converge. This means that the algorithm was not able to settle on an appropriate solution for the best regression coefficients and the result should be treated with caution. Typically, this is due to not enough data or trying to fit too many predictor variables simultaneously or a poor choice of model between X and Y. 
+Significance testing is conceptually the same as for linear regression, whereby each regression coefficient (i.e. log odds ratio) is tested to see if it is non-zero. It differs though how it is calculated. As we are no longer able to derive an exact solution, we have to use iterative method to find the best estimates. This means you sometimes might get warnings that your model failed to converge. This means that the algorithm was not able to settle on an appropriate solution for the best regression coefficients and the result should be treated with caution. Typically, this is due to not enough data or trying to fit too many predictor variables simultaneously or a poor choice of model between X and Y. 
 
 
 ```{r}
@@ -1104,7 +1104,7 @@ Let's say we have a new observation we want to make a prediction for, we know th
 
 ```
 
-While by chance it's value looks like a probability we need to do some more transformations to get it to a probability. First we convert from log odds to odds:
+While by chance its value looks like a probability, we need to do some more transformations to get it to a probability. First we convert from log odds to odds:
 
 ```{r}
 ## convert to odds
