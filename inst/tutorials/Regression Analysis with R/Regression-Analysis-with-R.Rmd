@@ -1222,10 +1222,14 @@ We have cover a number of different types of regression analysis:
 We have looked at what hypothesis or significance testing means for a regression model to test
 
 * individual regression coefficients on an outcome
-* the joint effect of mutliple predictor variables on an outcome
+* the joint effect of multiple predictor variables on an outcome
 
-WE have highlight the link between R
+As a consequence we have drawn out the link between regression and 
 
+* a t-test
+* ANOVA
+
+In summary regression is a modulular framework that can be used to test a endless range of analytical questions.
 
 
 ## Extras
