@@ -1106,15 +1106,23 @@ anova(model.log.null, model.log.full, test = "Chisq")
 
 ```{r quiz8, echo=FALSE}
 quiz(
-question("Does socioeconomic status have a significant effect on the odds of Type II DIabetes?",
+question("Does socioeconomic status have a significant effect on the odds of Type II Diabetes?",
   answer("Yes", correct = TRUE),
-  answer("No"))
+  answer("No")),
+  question("Considering the estimated regression coefficients for the two binary variables for ethnicty, which of the following statements are correct? Ignore the P-values we are just interested in interpeting the regression coefficients. Select all of the following statements that apply.",
+  answer("Asians are associated with decreased risk of Type II Diabetes relative to African Americans.", correct = TRUE),
+  answer("Asians are associated with increased risk of Type II Diabetes relative to African Americans."),
+    answer("Asians are associated with decreased risk of Type II Diabetes relative to Europeans.", correct = TRUE),
+  answer("Asians are associated with increased risk of Type II Diabetes relative to Europeans")
+  )
 )
 ```
 
-#### Predictions with the logistic regression model
+You may have noticed in the last example above that while the ANOVA for the ethnicity variable was significant neither of the two dummy variables were significantly associated at P < 0.05. The `ethnicityEuropean` showed a trend for significance with P~0.05. This happens sometimes becuase when you use an ANOVA to test for the joint effect of both dummy variables, you are using a 2 degree of freedom test (see third column in the ANOVA output), while in the tests for the individual coefficients you are using a 1 degree of freedom test. Mathematically the threshold for a two degree of freedom test is slightly lower to be significant. You could think of this as rather than needing a really strong effect in one variable, a small effect, but in both variables would be meaningful. In reality these results are not contradicting each other, its just a chance thing related to the fact that we have used a hard threshold to determine significance. Where you only just have enough statitstica power to detect an effect, it is chance whether it falls just above the trheshold or just below. 
 
-R has an inbuilt function to make it easy to generate predictions using the fitted regression model and new (or even old data). We are going to use this function to explore what exactly a logistic regression model is predicting and how it goes from our weighted sum of prediction variables to the binary outcome variable. 
+#### Predictions with the Logistic Regression Model
+
+We are going to make some predictions from a logiistic regression model to show how the model goes from a weighted sum of prediction variables to the binary outcome variable. 
 
 Let's revist the example of prediction type 2 diabetes as a function of alcohol units and exercise hours. First we need to fit the model.
 
@@ -1127,7 +1135,7 @@ summary(model.log)$coefficients
 Using our estimated regression coefficients we can write our fitted regression model as
 
 ```{r, echo = FALSE}
-logEq<- paste0("$", signif(coef(model.log)[1],2), " + ", signif(coef(model.log)[2],2), " * ExerciseHours + ", 
+logEq<- paste0("$\frac{\text{ln(p(TypeIIDiabetes))}}{(1-p(TypeIIDiabetes))}", signif(coef(model.log)[1],2), " + ", signif(coef(model.log)[2],2), " * ExerciseHours + ", 
         signif(coef(model.log)[3],2), " * AlcoholUnits$")
 
 ```
@@ -1144,7 +1152,7 @@ Let's say we have a new observation we want to make a prediction for, we know th
 
 ```
 
-While by chance its value looks like a probability, we need to do some more transformations to get it to a probability. First we convert from log odds to odds:
+While by chance this value looks like a probability, we need to do some more transformations to get it to a probability. First we convert from log odds to odds:
 
 ```{r}
 ## convert to odds
@@ -1160,6 +1168,8 @@ Next, we convert from odds to probability of being a case.
 ```
 
 The final step to convert this to a binary case/control status is to apply the threshold 0.5: if the probability is > 0.5 then they are classed as a case and if the probability is < 0.5 they are classed as a control. In this example the probability is just above 0.5 and therefore they would be predicted as a case. However, the estimated probability is not exactly 0, which gives a sense of how imprecise/insensitive our prediction based on this model might be. 
+
+
 
 #### Logistic regression assumptions
 
@@ -1203,11 +1213,18 @@ In this session we have covered a number of concepts:
 * What the intercept is
 
 
-We have cover a number of different types of regression analysis
+We have cover a number of different types of regression analysis:
 
 * Simple Linear Regression
 * Muliple Linear Regression
 * Logistic Regression
+
+We have looked at what hypothesis or significance testing means for a regression model to test
+
+* individual regression coefficients on an outcome
+* the joint effect of mutliple predictor variables on an outcome
+
+WE have highlight the link between R
 
 
 
@@ -1219,7 +1236,7 @@ If you are new to R, here we will just run through some details on the type of o
 
 
 ```{r}
-
+model <- lm(bmi ~ age + sex, demoDat)
 summary(model)$coefficients
 ```
 
@@ -1233,7 +1250,7 @@ mode(summary(model)$coefficients)
 ```
 
 
-The output of the command tells us it is stored in a matrix, which is a data-type in R, where you have rows and columns. A similar data-type is called a data.frame. The difference between these two data-types is that matrices can only contain one data type, which we can determine with the function `mode()`. Here it contains exclusively numeric values. In constrast, in a data frame each column can be a different data type. Our BDR data is stored in a data.frame and the output of the `str()` function, tells us the data type assigned to each column. 
+The output of the command tells us it is stored in a matrix, which is a data-type in R, where you have rows and columns. A similar data-type is called a data.frame. The difference between these two data-types is that matrices can only contain one data type, which we can determine with the function `mode()`. Here it contains exclusively numeric values. In constrast, in a data frame each column can be a different data type. Our demoDat data is stored in a data.frame and the output of the `str()` function, tells us the data type assigned to each column. 
 
 Let's say we wanted to extract a single value from this matrix, there are a number of commands we can use. For example, let's extract the p-value for the age regression slope parameter using the slicing function `[`.
 
@@ -1248,7 +1265,7 @@ Alternatively we can specify either the column or row name:
 
 ```{r, eval = FALSE}
 
-summary(model)$coefficients["Age",4]
+summary(model)$coefficients["age",4]
 
 ```
 
@@ -1275,15 +1292,13 @@ summary(model)$adj.r.squared
 ```
 
 
-
 Note that as well as directly assessing these slots using the `$` command, there also exist some predefined functions to extract the commonly requested outputs from the model fit. We have already taken advantage of one of these, `summary()`, others include `coef()`, `effects()`, `residuals()`, `fitted()` and `predict.lm()`.
 
-### Summary model fits
+### Simple Linear Regression Link between F-test and T-test
+
+We can also use an F-test to test a single predictor variable in our model. 
 
 
-Therefore, we may also want to check some of the other model summary statistics. 
-
-In the `summary(model)` output we can see at the bottom that the results of testing the full model with an F-test. If we want to see the full table of sums of squares statistics we can use the `anova()` function on our fitted regression model.
 
 ```{r}
 model<-lm(weight ~ height)
@@ -1292,8 +1307,11 @@ anova(model)
 
 ```
 
+In the `summary(model)` output we can see at the bottom that the results of testing the full model with an F-test. If we want to see the full table of sums of squares statistics we can use the `anova()` function on our fitted regression model.
 
 Comparing this table with the coefficients table, we can see that the p-value from the t-test of the age regression parameter and the F-test for the full model are identical. This is not a coincidence and is always true for the specific case of simple linear regerssion.
+
+#### Extracting Variance Explained Statistics
 
 Finally, we will look at the $R^{2}$ and $\overline{R}^{2}$ statistics. We can see from the `summary(model)` output above these are automatically calculated. For the simple linear regression model we have fitted
 
