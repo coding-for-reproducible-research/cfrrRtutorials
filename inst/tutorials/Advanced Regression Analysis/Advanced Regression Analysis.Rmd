@@ -7,11 +7,29 @@ runtime: shiny_prerendered
 ```{r setup, include=FALSE}
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
+
+nInd<-20
+indIDs <-paste0("X", sample(10000:40000, nInd))
+nVisits<-rpois(indIDs, 4)
+nVisits[which(nVisits == 0)]<-1
+
+cogAbaseline<-rpois(indIDs, 25)
+cogBbaseline<-rnorm(indIDs, 8,4)
+
+visitID<-rep(indIDs, nVisits)
+visitNum <- unlist(lapply(nVisits, seq))
+
+cogA<- floor(cogAbaseline[match(visitID, indIDs)] + visitNum * 0.2 + rpois(length(visitNum), 1))
+
+cogB<-cogBbaseline[match(visitID, indIDs)] + visitNum * 0.1 + rnorm(length(visitNum), 0, 2)
+
+cogDat<-cbind("ID" = visitID, "VisitNum" = visitNum, "CognitionA" = cogA, "CognitionB" = cogB)
+
 ```
 
 ## Overview of Workshop
 
-Welcome to Introductory Regression Analysis with R. Our aim is to provide you with a comprehensive introduction to the statistical tool regression. In this session you will learn what regression is, how to fit a range of regression models with R, how to interpret the output and the link between regression and other common statistical tools.
+Welcome to Advanced Regression Analysis with R. Our aim is to build on your existing knowledge of regression to fit more complex models that can handle more complicated data sets. In this session you will learn about different types of regression analysis, when to use them and how to interpret the results.
 
 ### Introduction to Coding For Reproducible Research
 
@@ -27,7 +45,7 @@ Championed by and in partnership with
 * Exeter Health Analytics Research Network 
 
 
-This workshop, and the others in the series, were put together by a series of working groups formed by researchers from across the University supported by Exeter's Research Software Engineering Group. The programme and workshops are under constant evolution. We appreciate your patience as we develop and test these materials and are grateful for your feedback which is a core component of this process. We also need to maintain accurate records of how many participants we have reached, so ask you to mark you attendence on the collaborative document.
+This workshop, and the others in the series, were put together by a series of working groups formed by researchers from across the University supported by Exeter's Research Software Engineering Group. The programme and workshops are under constant evolution. We appreciate your patience as we develop and test these materials and are grateful for your feedback which is a core component of this process. We also need to maintain accurate records of how many participants we have reached, so ask you to mark your attendance on the collaborative document.
 
 ### Workshop format
 
@@ -41,7 +59,119 @@ Our aim is to be responsive to the needs of the group, both in person and virtua
 
 We would like to highlight that we have a [code of conduct](https://uniexeterrse.github.io/intro-to-r/code.html) and by attending this workshop you are agreeing to abide by it. 
 
-Let's get started.
+
 
 ### Pre-requisites
+
+This course will not include an introduction to R, or how to setup and use R or Rstudio. It is assumed you are comfortable coding in R and are familiar with:
+
+* how to write and execute commands in the R console
+* what type of variables are available in R and how to work with these
+
+We also assume that you are comfortable with:
+
+* simple linear regression
+* multiple linear regression with categorical, binary or continuous predictor variables
+* logistic regression
+
+If not we recommend that you consult our pre-requisite course **Introductory Regression Analysis with R**.
+
+### Course Notes
+
+This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attend a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these have also been designed such that you should also be able to work through them independently. 
+
+You can navigate through the section using the menu on the side. 
+
+## Regression models with interaction terms
+
+We are going to look at how to code an interaction term in R by extending the multiple linear regression model we fitted in the previous workshop (Contact Day 3). If you recall, we fitted a model to see whether age and sex predict cognitive performance as measured by the general cognitive factor. Here we will add an interaction term between age and sex. To do this we need to add the interaction term to our formula.
+
+```{r}
+
+model.int<-lm(GCogPriorDeath ~ Age + Sex + Age*Sex, dat = bdr.dat)
+summary(model.int)
+
+```
+
+From the output above we can see that we have four regression coefficients (one per row). If we apply a p-value threshold of 0.05, we would conclude that age has a significant effect on general cognitive performance, but sex does not. The bottom row contains the result for the interaction, and as with the main effect for sex, we can see that R has appended the name of the contrast category to the name of the interaction. We can see that the interaction is significant with a P-value of `r signif(summary(model.int)$coefficients["Age:Sexmale", "Pr(>|t|)"],3)`. The estimated regression coefficient is `r signif(summary(model.int)$coefficients["Age:Sexmale", "Estimate"],3)` which represents the change in the age slope parameter for males. So we would conclude that there is a significant effect of age on general cognition in both sexes but the nature of the relationship is significantly different.
+
+
+To characterise the sex-specific effects in more detail, we can write two equations from this output, one for males and one for females that represent the sex-specific predictions. 
+
+```{r,  echo = FALSE}
+
+femaleEq<-paste0("$GCogPriorDeath  = ",signif(coefficients(model.int)[1],3), " + ", signif(coefficients(model.int)[2],3), " * Age$")
+
+maleEq<-paste0("$GCogPriorDeath  = ",signif(coefficients(model.int)[1],3), " + ", signif(coefficients(model.int)[3], 3)," + (", signif(coefficients(model.int)[2],3), "+", signif(coefficients(model.int)[4],3),") * Age = ", 
+               signif(sum(coefficients(model.int)[c(1,3)]),3), "+",
+               signif(sum(coefficients(model.int)[c(2,4)]),3), " * Age$")
+
+```
+
+For females we have
+
+`r femaleEq`
+
+and for males we have 
+
+`r maleEq`.
+
+
+We can see that males have a larger intercept, so cross the y-axis at a higher point indicative of a baseline bigger effect. We can also see that they are associated with a larger magnitude of effect in the same direction as females. 
+
+Let's look at a visualisation of these two sex specific regression models, where we will plot two lines one for females and one for males. 
+
+```{r}
+
+plot(bdr.dat$Age, bdr.dat$GCogPriorDeath, pch = 16, col = c("magenta", "blue")[bdr.dat$Sex], xlab = "Age (years)", ylab = "G", xlim = c(65,100))
+legend("topleft", pch = 16, col = c("magenta", "blue"), levels(bdr.dat$Sex))
+
+age<-seq(min(bdr.dat$Age), max(bdr.dat$Age),length.out = 20)
+pred.males<-sum(coefficients(model.int)[c(1,3)]) + sum(coefficients(model.int)[c(2,4)])*age
+
+pred.females<-coefficients(model.int)[1] + coefficients(model.int)[2]*age 
+
+lines(age, pred.males, col = "blue")
+lines(age, pred.females, col = "magenta")
+```
+
+We can see in the scatterplot, that while at age 65, males have a higher cognitive score, as they decrease more rapidly than females (shown by the steeper gradient), they quickly fall below the mean prediction for females at around 67-68 years of age. 
+
+
+#### R coding conventions for interactions
+
+In fact we can write this code more compactly, as R will automatically include the main effects for the two variables as well as the interaction, if we use the `*` to denote which variables we want to model an interaction for. For example, we obtain the same output with the more compact coding here: 
+
+
+```{r}
+
+model.int<-lm(GCogPriorDeath ~ Age*Sex, dat = bdr.dat)
+summary(model.int)
+
+```
+
+If in fact, we want to include just the interaction without the main effect terms, we can use  ":" instead. 
+
+For example:
+
+
+```{r}
+
+model.int<-lm(GCogPriorDeath ~ Age:Sex, dat = bdr.dat)
+summary(model.int)
+
+```
+
+Because we have omitted the main effect terms, we need two interaction terms to capture the sex specific effects (i.e. we need two regression coefficients to enable us to estimate a female-specific slope and a male-specific slope). When we have age as a main effect, the regression coefficient is equivalent to the "Age:Sexfemale" variable. As shown here
+
+
+```{r}
+
+model.int<-lm(GCogPriorDeath ~ Age + Age:Sex, dat = bdr.dat)
+summary(model.int)
+
+```
+
+In general though, it is advisable to have the main effects for each predictor variable as well as the interaction, to ensure that effects are correctly attributed to the right source.
+
 

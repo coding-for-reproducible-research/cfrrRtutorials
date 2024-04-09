@@ -1,1 +1,4 @@
 *.html
+
+inst/tutorials/*/*.html
+
