@@ -1252,14 +1252,15 @@ question("For the full model $y ~ age + sex + education_years$, which of this ar
 
 In this session we have covered a number of concepts:
 
-* What is regression
-* What the intercept is
+* An overview of what is regression
+* How to represent a line as an equation
+* What the regression coefficients represent
 
 
-We have cover a number of different types of regression analysis:
+We have covered a number of different types of regression analysis:
 
 * Simple Linear Regression
-* Muliple Linear Regression
+* Multiple Linear Regression
 * Logistic Regression
 
 We have looked at what hypothesis or significance testing means for a regression model to test
@@ -1269,10 +1270,10 @@ We have looked at what hypothesis or significance testing means for a regression
 
 As a consequence we have drawn out the link between regression and 
 
-* a t-test
+* t-tests
 * ANOVA
 
-In summary regression is a modulular framework that can be used to test a endless range of analytical questions.
+In summary regression is a modular framework that can be used to test a endless range of analytical questions.
 
 
 ## Extras
