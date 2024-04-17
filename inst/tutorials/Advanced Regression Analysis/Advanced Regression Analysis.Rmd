@@ -4,26 +4,34 @@ output: learnr::tutorial
 runtime: shiny_prerendered
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 
-nInd<-20
+nInd<-175
 indIDs <-paste0("X", sample(10000:40000, nInd))
 nVisits<-rpois(indIDs, 4)
 nVisits[which(nVisits == 0)]<-1
 
 cogAbaseline<-rpois(indIDs, 25)
 cogBbaseline<-rnorm(indIDs, 8,4)
+sex<-sample(c("M", "F"), nInd, replace = TRUE, prob = c(0.55, 0.45))
+age<-floor(runif(nInd, 20, 60))
+intervention<-sample(c("Placebo", "Training"), nInd, replace = TRUE)
 
-visitID<-rep(indIDs, nVisits)
+visitID<-as.factor(rep(indIDs, nVisits))
 visitNum <- unlist(lapply(nVisits, seq))
 
-cogA<- floor(cogAbaseline[match(visitID, indIDs)] + visitNum * 0.2 + rpois(length(visitNum), 1))
+index<-match(visitID, indIDs)
+visitSex<-as.factor(sex[index])
+visitAge<-age[index]+visitNum
+visitIntervention<-as.factor(intervention[index])
 
-cogB<-cogBbaseline[match(visitID, indIDs)] + visitNum * 0.1 + rnorm(length(visitNum), 0, 2)
+cogA<- floor(cogAbaseline[index] + visitNum * 0.2 + rnorm(length(visitNum), 0,1))
 
-cogDat<-cbind("ID" = visitID, "VisitNum" = visitNum, "CognitionA" = cogA, "CognitionB" = cogB)
+cogB<-cogBbaseline[index] + visitNum * (0.1 + 0.03 * as.numeric(visitSex) + 0.05 * as.numeric(visitIntervention)) + rnorm(length(visitNum), 0, 2) 
+
+cogDat<-data.frame("ID" = visitID, "VisitNum" = visitNum, "Age" = visitAge, "Sex" = visitSex, "Intervention" = visitIntervention, "CognitionA" = cogA, "CognitionB" = cogB)
 
 ```
 
@@ -82,23 +90,344 @@ This tutorial contains the course notes, example code snippets plus explanations
 
 You can navigate through the section using the menu on the side. 
 
+For each individual we have a unique identifier code (ID). We have the individuals Sex, age at recruitment, derived dementia status and years education. We then have a series of columns for the visit data, which includes the age at that visit, the time in the study, the CDR (clinical dementia rating) score, CognitionA and MOCA score. Some individuals have multiple entries, capturing data collected at different assessments over time. We can use the `table()` function to tabulate how many visits each individual had, and then the `summary()` and `hist()` functions to calculate some descriptive statistics and plot a histogram of these data. 
+
+```{r}
+nVisit<-table(cogDat$ID)
+summary(as.numeric(nVisit))
+
+hist(nVisit, main = "", xlab = "nVisits", ylab = "nIndividuals", breaks = c(0:max(nVisit)))
+```
+
+We can see that the majority of individuals had more than one visit, with a mean of `r signif(mean(nVisit),3)` and a maximum of `r max(nVisit)` visits.
+
+## Mixed Effects Models
+
+The functions to fit a multi-level model are not provided with the standard installation of R so we need to install a package which contains the functions we need. Packages are the fundamental units of reproducible R code and are the mechanism to increase R's useability. They include reusable R functions, the documentation that describes how to use them, and optionally sample data and tutorials. The package we will use here is called `lme4`. First we will cover how to install and load a package. 
+
+### Installing and loading packages
+
+There are a number of places R packages can be downloaded from (NB not all packages are available in all locations so the package itself will dictate which method you use to install it). Many older packages are stored on CRAN[https://cran.r-project.org/web/packages/]. R provides a function to download such packages `install.packages()` where the name of the package is provided as an argument. Multiple packages can be provided as a vector using the `c()` function. The lme4 package we are interested in, can be installed in this way.  
+
+
+```{r, eval = FALSE}
+install.packages("lme4")
+```
+
+Alternatively in Rstudio, this can be achieved through the drop-down menus: Tools -> Install Packages... -> and the package name can be entered (Figure 1). The end of this document contains additional notes on other ways to install packages.
+
+![Install packages in RStudio via dropdown menus](installPackages.png)
+
+
+You may get a pop-up window asking you to choose a mirror (this is not overly important but logical to choose a local UK based mirror). When you install a package some text may be printed to the console, some of which won't be in plain English or easily understandable. You may get a warning say cannot write to the default library directory and R will suggest an alternative which you can choose to accept. Ultimately you should get a message saying `package 'lme4' successfully unpacked and MD5 sums checked` indicating the installation has worked, it should also tell you where it has installed the package. This information is not important, as it will automatically install it where R can find it, and you shouldn't need to to look at these files. Packages typically build on functionality from other packages and cannot be successfully installed if any packages it depends on are not installed on your system. By default these should be automatically installed along with the package you want. However errors may arise if the packages are hosted in different places and therefore cannot all be installed using the same command. See the end of this document for other methods to install packages from other repositories.
+
+Once we have installed the package we need to load it. As with all other software you install on a computer, it only needs to be installed once and in future R sessions you just need to load the package as follows. The caveat here is if you update the version of R you are using, as the packages are saved in folders relating to the version of R you are using.
+
+```{r}
+library("lme4")
+
+```
+
+From the output you can see that it automatically loads any other packages it is dependent on, in this case the Matrix package.
+
+All packages hosted on CRAN come with a webpage which provides a description of what the package does, details on the version number, who wrote the package and other useful information. All packages also come with a manual which documents all the functions the package contains and some will also have vignettes providing an annotated typical workflow for using the package. These are put together by the package authors and therefore can be variable in how accessible the language is and useful the information is for users. Links to the manual and vignette can be accessed through the package's webpage. The documentation for each function can also be accessed through the help function in R. To fit a mixed effects model we will use the function `lmer`, but before we use it let's see what the help function has to say about it.
+
+```{r, eval = FALSE}
+help(lmer)
+
+```
+
+You may need to update the package in the future. `update.packages()` can be run to update all packages on your system. Note that every time you update your version of R, you will likely need to reinstall all your packages.
+
+### Fitting a mixed effects model
+
+We are going to model how the performance in cognitive test A, varies over the course of the study. As we have repeated measures for most individuals in our study, we are going to include a random intercept for individual. So `CognitionA` is our outcome or dependent variable,  `ViistNum` is the independent variable which are modelled as fixed effects and is what we are interested in measuring the effect of.`ID` is our random effect, i.e. the variable which groups assessment data from the same individual together. This model can be specified as follows: 
+
+```{r}
+
+model.rand.int<-lmer(CognitionA ~ VisitNum  + (1 | ID), data = cogDat)
+
+```
+
+The `1|` notation is how we specify the inclusion of random intercepts. Fixed effects are included using the standard formula notation as used in linear regression models. The default behaviour is to fit this model using restricted maximium likelihood,(REML), however we can tell R to use maximum likelihood by adding the argument `REML = FALSE`.
+
+### Extracting the results
+
+We can extract the statistics in a similar manner to linear regression. First, we can use `summary()` to print a nicely formatted output of some of the results and statistics to the console. 
+
+
+```{r}
+summary(model.rand.int)
+
+```
+
+
+The output is similar to that from a linear regression model, fitted with `lm()` however, you may have noticed that there are no p-values in the co-efficients table. The lme4 package does not calculate p-values for the coefficients as the authors question their validity, [see discussion](https://stat.ethz.ch/pipermail/r-help/2006-May/094765.html).
+
+However, given the high demand for p-values by many users, a second package `lmerTest` has been developed, which if loaded alongside lme4, adds p-values to the above table.
+
+As before we need to install and load this package.
+
+```{r}
+library(lmerTest)
+
+```
+
+
+We then have to refit our mixed effects model for the p-values to be calculated.
+
+```{r}
+model.rand.int<-lmer(CognitionA ~ VisitNum  + (1 | ID), data = cogDat)
+summary(model.rand.int)
+
+```
+
+We can see from the coefficients table, that R has used the t-distribution to calculate p-values for the fixed effects. By default `lmerTest` uses the Satterwaite approximation to calculate the degrees of freedom for this test (stated at the top of the output, alongside the method for estimating the coefficients). In the results we can see that the `VisitNum` variable is significantly positively associated with the performance in cognitive test A. The random effects are summarized by their estimated variance statistics. We can see that the variance of the individual intercepts is `r signif(as.data.frame(VarCorr(model.rand.int))[1,"vcov"], 2)`. 
+
+Unlike with the linear model, there is no overall regression test, or any summary of the model fit. Our primary concern with the mixed effects model, is whether the random intercept is needed. To test this we will use the likelihood ratio test to see if it significantly improves the fit of the model. To make this comparison we need to fit a standard linear model with the same fixed effects terms, but omitting the random effect. We can then use the `anova()` function to calculate the test statistics and perform the comparision with the $\chi^2_{1}$ distribution to calculate a p-value.   
+
+```{r}
+model.lm<-lm(CognitionA ~ VisitNum, data = cogDat)
+anova(model.rand.int, model.lm)
+
+```
+
+
+You will see in the first line of the output, R automatically refits the random intercepts model with maximum likelihood so that we can perform the likelihood ratio test. It then proceeds to summarise the statistics of the test and provides the p-value from a $\chi^2_{1}$ distribution, which is significant (P < 0.05). Therefore we can conclude that the addition of a random intercept for individual is an important component of the model. Note if we want a more specific p values than 2.2e-16, we can get that as follows. By using the fact that the anova output is a matrix, we can "slice" and select specific elements from.
+
+```{r}
+anova(model.rand.int, model.lm)[2,8]
+
+```
+
+Now there is in fact an inbuilt function to perform a test for significant random effects `ranova()`. Let's try it out.
+
+```{r}
+
+ranova(model.rand.int)
+```
+
+Looking at the output, we can see two rows, one for each model and the the number of degrees of freedom for the two models is right. If we just look at the p-value it is the same as when we manually coded the anova therefore we might think that we have performed the same analysis.  But on closer inspection we can see the log likelihood values and therefore the test statistic are subtly different. This method is in fact using the likelihood statistics from the model fitted using REML, rather than maximum likelihood which is incorrect. We can confirm this by extracting the log likelihood from our lmer model object (which we fitted using REML rather than ML), rather than refitting using maximum likelihood. 
+
+```{r}
+## log likelihood of linear model
+logLik(model.lm)
+
+## log likelihood of random intercepts model fitted with REML
+logLik(model.rand.int)
+```
+
+Now in reality the results are essentially the same, and indeed they would have been had we used ML to fit our regression model initially. But as before it may be preferable to use the `anova()` function to explicitly make the model comparisons.
+
+
+To pull out specific parts of the output we can then use the `$` or use built in functions. We can use `names()` to get a list of all the elements we can extract from the summary object. NB with a linear regression model we extract results using functions applied to the `lm()` output,(e.g `coef(model.lm)`) here we apply functions to the summary output of the `lmer` model (e.g. `coef(summary(model.rand.int))`).
+
+```{r}
+summary(model.rand.int)$coefficients
+names(summary(model.rand.int))
+
+```
+
+For example we can extract the variance covariance matrix, or the log likelihood value
+
+```{r}
+vcov(summary(model.rand.int))
+```
+
+
+In order to work out the parameters of the regression model we need both the fixed and random effect estimates. Compare the output of the following two commands. 
+
+```{r}
+coef(summary(model.rand.int))
+lapply(coef(model.rand.int), head)
+
+```
+
+The first `coef(summary(model.rand.int))` gives us just the fixed effects along with the test statistics and p-values. From these coefficients we can make predictions for the average individual in the study, from which we can make generalised conclusions. 
+
+The second `coef(model.rand.int)` gives us the intercept and slope values for each level of our grouping variable i.e. it has combined the random and fixed effects for the intercept value so we have the individual specific intercept. The slope coefficients for age and sex are the same for all individuals as we did not estimate a random slope for either covariate. From this output we can make individual level predictions for the individuals in our observed data, which don't have much meaning for individuals not in our study. We have only extracted this output for the first six individuals, as otherwise it would run on for pages. This data is stored in a list, where each random variable has it's own slot, within which is a matrix of the regression parameters. As we have only one random variable we have only slot in our list, so it perhaps seems an unnecessary complicated structure, but it is designed to anticipate models with multiple random variables.  `lapply()` is a efficiency function in R which allows us to perform the same function to each slot of the list. Here we wanted to run the command `head()` to pull out the first 6 rows, so that we could make the output more manageable and get a sense of what the output looked like. 
+
+### Diagnostic plots
+
+There is no automatic way to produce the diagnostic plots like you can from the linear regression function (lm). However we can recreate these plots by extracting the required statistics from the lmer model object. Firstly, we can plot the residuals against the fitted values. In this plot we want the points to be randomly scattered with no evidence of a relationship between the x and y axis. Any evidence of the residuals being related to the fitted values may be indicative of a non-linear relationship between the dependent and independent variables. The second diagnostic plot we will create relates to the distribution of the residuals. Similar to linear regression, the residuals are assumed to be normally distributed with constant standard deviation. Therefore we can use a QQ plot to assess this (as well as look at the values proided in the summary of the model fit which should be symetric and have a median ~ 0).  An additional assumption, not applicable to linear regression, is that the random effects (either intercepts or coefficients) are also be normally distributed. Again we can use a qq plot to assess this. With a qq plot (or quantile-quantile plot), we are looking for the points to follow the diagonal line, any deviation indicates that the data are not normally distributed.
+
+```{r}
+par(mar = c(4,4,1,1))
+# a plot to check the constant standard deviation
+plot(fitted(model.rand.int),resid(model.rand.int,type="pearson"),col="blue", xlab = "fitted", ylab = "residuals") 
+abline(h=0,lwd=2)
+
+# normality of the residuals
+qqnorm(resid(model.rand.int)) 
+qqline(resid(model.rand.int))
+
+# normality of the random intercept estimates
+qqnorm(ranef(model.rand.int)$`ID`[,1]) 
+qqline(ranef(model.rand.int)$`ID`[,1])
+```
+
+In the first plot, there is a certain amount of random scatter, but there does also appear to be some kind of shape to the graph. Furthermore, the two QQ plots show some deviation from the line, particularly early on in the distribution. Why might this be, well given that the distribution of the outcome can influence the distribution of the residuals, let's look at the distribution of CognitionA.  
+
+```{r}
+
+hist(cogDat$CognitionA, main = "", xlab = "CognitionA", ylab = "Frequency")
+```
+
+We can see that our outcome variable is skewed with a long tail on the left. This is because CognitionA has a maximum value of 30 and if you do not have dementia, you will likely score quite highly with a lot of individuals scoring 30. 
+
+```{r}
+plot(cogDat$VisitNum, cogDat$CognitionA, pch = 16, xlab = "Age", ylab = "CognitionA")
+
+```
+
+So the relationship looks ...
+
+
+quite noisy, let's try transforming the data to see if it improves the validity of the assumptions. A typical transformation is apply a `log()` function. 
+
+```{r}
+hist(log(31-cogDat$CognitionA), main = "", xlab = "log(CognitionA)")
+```
+
+
+Still fairly skewed, but let's see how it changes the model assumptions. 
+
+```{r}
+
+cogDat$CognitionA.log<-log(cogDat$CognitionA)
+## this transformation doesn't work for all samples - so we need to filter our data to exclude NAs
+cogDat.tmp<-cogDat[!is.na(cogDat$CognitionA.log),]
+model.rand.int.log<-lmer(CognitionA.log ~ VisitNum  +  (1 | ID), data = cogDat.tmp)
+summary(model.rand.int.log)
+
+par(mar = c(4,4,1,1))
+# a plot to check the constant standard deviation
+plot(fitted(model.rand.int.log),resid(model.rand.int.log,type="pearson"),col="blue", xlab = "fitted", ylab = "residuals") 
+abline(h=0,lwd=2)
+
+# normality of the residuals
+qqnorm(resid(model.rand.int.log)) 
+qqline(resid(model.rand.int.log))
+
+# normality of the random intercept estimates
+qqnorm(ranef(model.rand.int.log)$`ID`[,1]) 
+qqline(ranef(model.rand.int.log)$`ID`[,1])
+
+```
+
+These QQ plots look better, but still some violation. However the coefficients table for the fixed effects shows the same results whereby age is significantly associated and sex is not. Note that these coefficients are in the unit of our transformed variable and hence we need to convert them back to the `CognitionA` scale. 
+
+```{r}
+-1*exp(coef(summary(model.rand.int.log))["VisitNum",1])
+
+```
+
+Another alternative is to use a different distribution, rather than a normal. Similar to generalized linear models, we can fit generalized mixed effects models with a wider range of link functions, being we can utilise  outcome variables with different distributions. To do this we need to use `glmer()`. Note that fitting this model takes a very long time so we won't actually fit it but it gives you an idea of what you could try next. 
+
+```{r, eval = FALSE}
+model.rand.int.glmer<-glmer(CognitionA ~ VisitNum  + Sex + (1 | ID), data = cogDat, family = "poisson")
+summary(model.rand.int.glmer)
+```
+
+
+### Adding random effects for regression coefficients (random slopes)
+
+Finally we will look at how to add a random slope; we will add a random slope for age to our existing example. Using the  same notation as before, random effect terms are provided in `()`, with a `|` separating the terms to add random effects for on the left from the grouping variable on the right. We want to fit a random intercept and random coefficient for age so the left hand part of the argument is `1 + cogDat$VisitNum`. 
+
+```{r}
+
+model.rand.slope<-lmer(CognitionA ~ VisitNum  + Sex + (1 + VisitNum| ID), data = cogDat)
+summary(model.rand.slope)
+
+``` 
+
+This time when we fit the model we can see that we get some output printed to the console and that it is a "Warning" message, saying "Model failed to converge". It is essentially a caution applied to the result. This is different to an error, whereby the function is prematurely stopped due to some unexpected input or result. If you are executing some R code as a script, then a warning will not cause the script to stop, but an error will. We can see that despite the warning, the `lmer()` command has completed and produced an output by the fact that we are able to call `summary()` on the fitted lmer object. However, the fact that there was a warning, means we should treat this result with some caution.
+
+
+We may be able to obtain convergence, by allowing the iterative procedure to run for longer, or relaxing the convergence criteria. The fact that it hasn't converged means that we may need to be cautious about interpreting the results. But for the sake of understanding the output we will take a look at them anyway. 
+
+The results of the fixed effects give the same pattern as the random intercepts model, with age significantly associated and sex not. What's more, the estimated coefficents are very similar, including for the intercept. The output below may make it easier to compare.
+
+```{r}
+summary(model.rand.int)$coefficients
+summary(model.rand.slope)$coefficients
+
+```
+
+If we look at the estiamted parameters for the random effects provided in the summary output we can see that the estimated variance for the random intercepts is `27.234116` and the variance for the random slopes is `0.005471`. While the magnitude of these is quite dramatically different, their values are relative to the values of the coefficients. We can also see that the correlation between an individual's random intercept and random slope is `-0.93`, indicating that individuals with larger intercepts have smaller slopes. 
+
+To formally test whether the random slopes for age improve the fit of the model we can use the likelihood ratio test through the `anova()` function. Specifially we want to compare our random slopes model with the random intercepts model which we fitted earlier. Hence we can just run the command
+
+```{r}
+anova(model.rand.int, model.rand.slope)
+
+```
+
+This test returns a highly significant p-value, indicating that the random slopes have a non-zero variance and therefore are an improvment to the model. 
+
+
+Again we can generate some diagnostic plots to check our model assumptions; this time we need to add a fourth plot to check the residuals of the random slope term we estimate for each individual. 
+
+```{r}
+# a plot to check the constant standard deviation
+plot(fitted(model.rand.slope),resid(model.rand.slope,type="pearson"),col="blue", xlab = "fitted", ylab = "residuals") 
+abline(h=0,lwd=2)
+
+# normality of the residuals
+qqnorm(resid(model.rand.slope)) 
+qqline(resid(model.rand.slope))
+
+# normality of the random intercept estimates
+qqnorm(ranef(model.rand.slope)$ID[,1]) 
+qqline(ranef(model.rand.slope)$ID[,1])
+
+# normality of the random slope estimates
+qqnorm(ranef(model.rand.slope)$ID[,2])
+qqline(ranef(model.rand.slope)$ID[,2])
+```
+
+Unsurprisingly, these again suggest that the residuals are not noramlly distributed and we may wish to consider altering our model to improve the validity of the model assumptions. 
+
+### Significance testing of fixed effects with anova
+
+As with linear regression we can use `anova()` to compare the joint effect of fixed effects. Note that the random effects must be identical and the fixed effects must be nested (i.e. one is a subset of the other). This can only be done if we used the maximum likelhood method (set by including the argument `REML = FALSE`), however if the model was intially fitted with `REML = TRUE`, R will first refit the model with `REML = FALSE` and then perform the anova. Here we will compare our random intercepts model with and without a fixed effect for sex 
+
+
+
+```{r}
+model.rand.int.null<-lmer(CognitionA ~ visitNum  + (1 | ID), data = cogDat)
+
+anova(model.rand.int, model.rand.int.null)
+
+```
+
+
+We can see the p-value is > 0.05 then we would conclude that sex does not significantly improve the model inline with the t-test of the fixed effect coefficient.
+
+For more information on reasons why a model might not converge we can look at the documentation for the lmer package. 
+
+```{r, eval = FALSE}
+?convergence
+```
+
+
 ## Regression models with interaction terms
 
 We are going to look at how to code an interaction term in R by extending the multiple linear regression model we fitted in the previous workshop (Contact Day 3). If you recall, we fitted a model to see whether age and sex predict cognitive performance as measured by the general cognitive factor. Here we will add an interaction term between age and sex. To do this we need to add the interaction term to our formula.
 
-```{r}
+```{r, eval=FALSE}
 
-model.int<-lm(GCogPriorDeath ~ Age + Sex + Age*Sex, dat = bdr.dat)
+model.int<-lm(GCogPriorDeath ~ Age + Sex + Age*Sex, dat = cogDat)
 summary(model.int)
 
 ```
 
-From the output above we can see that we have four regression coefficients (one per row). If we apply a p-value threshold of 0.05, we would conclude that age has a significant effect on general cognitive performance, but sex does not. The bottom row contains the result for the interaction, and as with the main effect for sex, we can see that R has appended the name of the contrast category to the name of the interaction. We can see that the interaction is significant with a P-value of `r signif(summary(model.int)$coefficients["Age:Sexmale", "Pr(>|t|)"],3)`. The estimated regression coefficient is `r signif(summary(model.int)$coefficients["Age:Sexmale", "Estimate"],3)` which represents the change in the age slope parameter for males. So we would conclude that there is a significant effect of age on general cognition in both sexes but the nature of the relationship is significantly different.
+From the output above we can see that we have four regression coefficients (one per row). If we apply a p-value threshold of 0.05, we would conclude that age has a significant effect on general cognitive performance, but sex does not. The bottom row contains the result for the interaction, and as with the main effect for sex, we can see that R has appended the name of the contrast category to the name of the interaction. We can see that the interaction is significant with a P-value of `r signif(0.9,3)`. The estimated regression coefficient is `r signif(0.9,3)` which represents the change in the age slope parameter for males. So we would conclude that there is a significant effect of age on general cognition in both sexes but the nature of the relationship is significantly different.
 
 
 To characterise the sex-specific effects in more detail, we can write two equations from this output, one for males and one for females that represent the sex-specific predictions. 
 
-```{r,  echo = FALSE}
+```{r,  echo = FALSE, eval = FALSE}
 
 femaleEq<-paste0("$GCogPriorDeath  = ",signif(coefficients(model.int)[1],3), " + ", signif(coefficients(model.int)[2],3), " * Age$")
 
@@ -110,18 +439,18 @@ maleEq<-paste0("$GCogPriorDeath  = ",signif(coefficients(model.int)[1],3), " + "
 
 For females we have
 
-`r femaleEq`
+
 
 and for males we have 
 
-`r maleEq`.
+.
 
 
 We can see that males have a larger intercept, so cross the y-axis at a higher point indicative of a baseline bigger effect. We can also see that they are associated with a larger magnitude of effect in the same direction as females. 
 
 Let's look at a visualisation of these two sex specific regression models, where we will plot two lines one for females and one for males. 
 
-```{r}
+```{r, eval = FALSE}
 
 plot(bdr.dat$Age, bdr.dat$GCogPriorDeath, pch = 16, col = c("magenta", "blue")[bdr.dat$Sex], xlab = "Age (years)", ylab = "G", xlim = c(65,100))
 legend("topleft", pch = 16, col = c("magenta", "blue"), levels(bdr.dat$Sex))
@@ -143,7 +472,7 @@ We can see in the scatterplot, that while at age 65, males have a higher cogniti
 In fact we can write this code more compactly, as R will automatically include the main effects for the two variables as well as the interaction, if we use the `*` to denote which variables we want to model an interaction for. For example, we obtain the same output with the more compact coding here: 
 
 
-```{r}
+```{r, eval = FALSE}
 
 model.int<-lm(GCogPriorDeath ~ Age*Sex, dat = bdr.dat)
 summary(model.int)
@@ -155,7 +484,7 @@ If in fact, we want to include just the interaction without the main effect term
 For example:
 
 
-```{r}
+```{r, eval = FALSE}
 
 model.int<-lm(GCogPriorDeath ~ Age:Sex, dat = bdr.dat)
 summary(model.int)
@@ -165,7 +494,7 @@ summary(model.int)
 Because we have omitted the main effect terms, we need two interaction terms to capture the sex specific effects (i.e. we need two regression coefficients to enable us to estimate a female-specific slope and a male-specific slope). When we have age as a main effect, the regression coefficient is equivalent to the "Age:Sexfemale" variable. As shown here
 
 
-```{r}
+```{r, eval = FALSE}
 
 model.int<-lm(GCogPriorDeath ~ Age + Age:Sex, dat = bdr.dat)
 summary(model.int)
@@ -174,4 +503,20 @@ summary(model.int)
 
 In general though, it is advisable to have the main effects for each predictor variable as well as the interaction, to ensure that effects are correctly attributed to the right source.
 
+
+## Additional notes
+
+Take a look at the [lme4 vignette](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) for more details on how to specify more complex mixed effect models with this package. 
+
+Also this post: https://rstudio-pubs-static.s3.amazonaws.com/63556_e35cc7e2dfb54a5bb551f3fa4b3ec4ae.html
+
+Notes on REML here: http://users.stat.umn.edu/~gary/classes/5303/handouts/REML.pdf
+
+A common error message when using `lmer()` is 
+
+> Error in KhatriRao(sm, t(mm)) : (p <- ncol(X)) == ncol(Y) is not TRUE
+
+If you get this error, try removing observations with missing data. While `lm()` and `glm()` were good at automatically handling the presence of these lmer throws an arguably confusing error. 
+
+R packages can be installed in a number of ways depending on where they are located. In this session we covered installing them directly from CRAN. Here are some other ways.
 
