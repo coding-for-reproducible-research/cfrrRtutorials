@@ -39,6 +39,8 @@ cogDat<-data.frame("ID" = visitID, "VisitNum" = visitNum, "Age" = visitAge, "Sex
 
 Welcome to Advanced Regression Analysis with R. Our aim is to build on your existing knowledge of regression to fit more complex models that can handle more complicated data sets. In this session you will learn about different types of regression analysis, when to use them and how to interpret the results.
 
+
+
 ### Introduction to Coding For Reproducible Research
 
 This workshop is offered as part of the [Coding For Reproducible Research Intiative](https://uniexeterrse.github.io/workshop-homepage/). 
@@ -90,7 +92,82 @@ This tutorial contains the course notes, example code snippets plus explanations
 
 You can navigate through the section using the menu on the side. 
 
-For each individual we have a unique identifier code (ID). We have the individuals Sex, age at recruitment, derived dementia status and years education. We then have a series of columns for the visit data, which includes the age at that visit, the time in the study, the CDR (clinical dementia rating) score, CognitionA and MOCA score. Some individuals have multiple entries, capturing data collected at different assessments over time. We can use the `table()` function to tabulate how many visits each individual had, and then the `summary()` and `hist()` functions to calculate some descriptive statistics and plot a histogram of these data. 
+## Mixed Effects Models
+
+### Why use a mixed effects model?
+
+Standard linear regression models make the assumption that the data used to fit the model are randomly selected from the population. By randomly sampled we mean that all pairs of samples are equally different. There is no reason why knowing the outcome of one sample would make it easier for us to predict the outcome of another sample. This is not always the case, and indeed there are times when we want to use data where their are relationships between the observations or structure to the data. This might be deliberate and part of the study design e.g. family or longitudinal studies, or alternatively it may be a consequence of poor study design or unforeseen recruitment bias. 
+
+If we force a standard regression mode with this assumption onto these type of data, we run the risk of our results being biases and the wrong conclusion being made. We could filter our data so that it only contains independent samples, but this seems a bit of waste of valuable data that will contain additional information that could improve the fit of our model. Instead it would be preferable to use a methodology that can appropriately model the underlying structure. 
+
+Multi-level models are designed to deal with nested, grouped, clustered or hierarchical data. The structure make be something you are interested in or just something we want to control for. It can be considered as a more complex regression framework to model:
+
+* structure within data
+    * e.g. patients recruited by different consultants from different clinics across the UK 
+* heterogeneity in variance between groups
+    * e.g. post-code specific effects on risk factors for disease 
+* individual-level and group-level effects
+    * e.g. weight influenced by genetics and local access to gyms 
+* dependencies between observations
+    * e.g. educational attainment at age 18 influenced by educational attainment at age 12 
+    
+
+It is also referred to as mixed effects model, hierarchical linear models, random effects models, random coefficients models...
+
+### What is a mixed effects model?
+
+
+
+Standard linear regression models, such as the example below, have one level, and can be referred to as single level regression models, whereby all the data is treated as independent observations. 
+
+$$y_{i} = \beta_{0} + \beta_{1}x_{i} + \varepsilon_{i}$$
+
+Where for observation i: 
+
+* $y_{i}$ is the outcome variable
+* $x_{i}$ is the predictor variable
+* $\beta_{0}$ is the intercept
+* $\beta_{0}$ is the slope coefficient for X
+* $\varepsilon \sim N(0,\sigma^2)$ is the error
+
+Critically all the parameters estimated for this model apply to all observations in the full sample. There is a single intercept, and single slope coefficient for each predictor variable, and ultimately a single error term. In order to model structure in our data set we need to expand this formula and introduce new parameters to represent this grouping effect. We use the variance components model, below, to include a group level influence:
+
+$$y_{ij} = \beta_{0} + u_{j} + \varepsilon_{ij}$$
+
+where for observation i, in group j:
+
+* $y_{ij}$ represents the value for individual i in group j
+* $\beta_{0}$ is the overall mean
+* $u_{j}$ is the group mean
+* $\varepsilon_{ij}$ is the error for individual i in group j 
+
+A multi-level model is the combination of both the single level regression model and variance components model. It can be represents as the two equations above, where each equation represents a different level of the data, i.e. one representing the individual level predictors and one representing the group level predictors (level 2). Alternatively, we can write as a single equation, by substituting the level 2 equation into the level 1 equation: 
+
+$$y_{ij} = \beta_{0} + u_{0j} + \beta_{1}x_{ij}  + \varepsilon_{ij}$$
+
+From this we can formula we can see that each group has it's own intercept value ($\beta_{0} + u_{0j}$) but every observation has the same slope coefficient ($\beta_{1}$). We call this a random intercepts model. 
+
+### What are fixed and random effects?
+
+Typically when defining or describing to mixed effects models, we consider them to include both fixed and random effects, where variables are assigned to be modeled as either one or the other. Fixed effects assume that the parameter estimates apply to all our observations (i.e. do not depend on j) and we estimate the value of the regression parameters for each variable. The interpretation of these estimated coefficients is as it was in single level regression models. 
+
+Instead for for variables classified as having random effects, we are assuming that each group within that variable has it's own effect and that across all the groups the distribution of their effects is normal. For random effects we are interested in estimating the variance of the distribution from which the group effects come. Conceptually random effects must be categorical variables. 
+
+
+For a mixed effects model with one fixed effect and one random effect we have four parameters to estimate using our observed data: 
+
+* $\beta_{0}$ (fixed effect)
+* $\beta_{1}$  (fixed effect)
+* $\sigma^{2}_{u}$ (random effect)
+* $\sigma^{2}_{\varepsilon}$ (random effect)
+
+The inclusion of this 
+
+### Fitting mixed effects models in R
+
+#### The dataset
+
+To enable us to try out some multilevel regression models we have some longitudinal data looking at cognitive performance annually for an intervention study. All individuals have multiple entries, capturing data collected at different assessments over time.For each individual we have a unique identifier code (`ID`). We have the individuals sex, intervention status and years education. We then have a series of columns for the visit data, which includes scores from various cognitive tests `CognitionA`, `CognitionB`, etc as well their age at the time of assessment.  We can use the `table()` function to tabulate how many visits each individual had, and then the `summary()` and `hist()` functions to calculate some descriptive statistics and plot a histogram of these data. 
 
 ```{r}
 nVisit<-table(cogDat$ID)
@@ -101,11 +178,12 @@ hist(nVisit, main = "", xlab = "nVisits", ylab = "nIndividuals", breaks = c(0:ma
 
 We can see that the majority of individuals had more than one visit, with a mean of `r signif(mean(nVisit),3)` and a maximum of `r max(nVisit)` visits.
 
-## Mixed Effects Models
+Given we have multiple observations from the same person we can not use standard regression models and instead we need to use a mixed effects model, as it is likely that an individual's performance at one visit will predict their performance at a second visit. 
 
-The functions to fit a multi-level model are not provided with the standard installation of R so we need to install a package which contains the functions we need. Packages are the fundamental units of reproducible R code and are the mechanism to increase R's useability. They include reusable R functions, the documentation that describes how to use them, and optionally sample data and tutorials. The package we will use here is called `lme4`. First we will cover how to install and load a package. 
+The functions to fit a multi-level model are not provided with the standard installation of R so we need to install a package which contains the functions we need. Packages are the fundamental units of reproducible R code and are the mechanism to increase R's usability. They include reusable R functions, the documentation that describes how to use them, and optionally sample data and tutorials. The package we will use here is called `lme4`. First we will cover how to install and load a package. 
 
-### Installing and loading packages
+
+#### Installing and loading packages
 
 There are a number of places R packages can be downloaded from (NB not all packages are available in all locations so the package itself will dictate which method you use to install it). Many older packages are stored on CRAN[https://cran.r-project.org/web/packages/]. R provides a function to download such packages `install.packages()` where the name of the package is provided as an argument. Multiple packages can be provided as a vector using the `c()` function. The lme4 package we are interested in, can be installed in this way.  
 
@@ -139,9 +217,15 @@ help(lmer)
 
 You may need to update the package in the future. `update.packages()` can be run to update all packages on your system. Note that every time you update your version of R, you will likely need to reinstall all your packages.
 
-### Fitting a mixed effects model
+### Coding a mixed effects model
 
-We are going to model how the performance in cognitive test A, varies over the course of the study. As we have repeated measures for most individuals in our study, we are going to include a random intercept for individual. So `CognitionA` is our outcome or dependent variable,  `ViistNum` is the independent variable which are modelled as fixed effects and is what we are interested in measuring the effect of.`ID` is our random effect, i.e. the variable which groups assessment data from the same individual together. This model can be specified as follows: 
+We are going to model how the performance in cognitive test A, varies over the course of the study. As we have repeated measures for most individuals in our study, we are going to include a random intercept for individual. This means that each individual can have a different baseline performance, and we can look for a common trend in the change in cognitive performance. The key features of our model are 
+
+* `CognitionA` is our outcome or dependent variable. 
+* `VisitNum` is the independent variable that captures time in the study. This will be modelled as a fixed effect and is what we are interested in measuring the effect of.
+* `ID` is our random effect, i.e. the variable which groups assessment data from the same individual together. 
+
+We can tell R to fit this model as follows using the `lmer` function.  
 
 ```{r}
 
@@ -149,9 +233,9 @@ model.rand.int<-lmer(CognitionA ~ VisitNum  + (1 | ID), data = cogDat)
 
 ```
 
-The `1|` notation is how we specify the inclusion of random intercepts. Fixed effects are included using the standard formula notation as used in linear regression models. The default behaviour is to fit this model using restricted maximium likelihood,(REML), however we can tell R to use maximum likelihood by adding the argument `REML = FALSE`.
+Fixed effects are included using the standard formula notation as used in linear regression models, with the outcome variable on the left and the predictor on the right separated by a `~`. The `1|` notation is how we specify the inclusion of random intercepts. Unlike standard linear regression, there are choices to be made as to what algorithm to use to derive the parameter estimates from the data you have. This decision is more important if you have a small sample size, in larger sample sizes it shouldn't matter too much. The default behaviour in R is to fit a mixed effects regression model using restricted maximium likelihood (REML), which will given unbiased estimates. We can force R to use maximum likelihood by adding the argument `REML = FALSE`.
 
-### Extracting the results
+### Significance testing in mixed effects regression models
 
 We can extract the statistics in a similar manner to linear regression. First, we can use `summary()` to print a nicely formatted output of some of the results and statistics to the console. 
 
@@ -162,11 +246,18 @@ summary(model.rand.int)
 ```
 
 
-The output is similar to that from a linear regression model, fitted with `lm()` however, you may have noticed that there are no p-values in the co-efficients table. The lme4 package does not calculate p-values for the coefficients as the authors question their validity, [see discussion](https://stat.ethz.ch/pipermail/r-help/2006-May/094765.html).
+The output is similar to that from a linear regression model, fitted with `lm()` however, you may have noticed that there are no p-values in the co-efficients table. Significance testing in mixed effects models is not as straight forward as it is for linear regression. Our objective for significance testing of the fixed effects is the same as for standard regression, to see if there is a relationship between the predictor variable and the outcome. We do this by seeing sif the data supports the alternative hypothesis that the parameter is non-zero (compared to the null hypothesis that it's value is 0).  As they are conceptually the same, test statistics for fixed effects can be calculated in the same way from the estimated value of the parameter divided by it's standard error. To go from a test statistic to a p value we need to know what distribution to use and this is where it gets tricky. This isteh challenge, as it is not obvious what distribution these test statistics should follow, and how many degrees of freedom should be applied. It could be influenced by 
 
-However, given the high demand for p-values by many users, a second package `lmerTest` has been developed, which if loaded alongside lme4, adds p-values to the above table.
+* Number of observations (level 1)
+* Number of groups (level 2)
+* Number of random effects
+* Combination of the above. 
 
-As before we need to install and load this package.
+So to determine significance we either need to make an approximation or a perform simulation to establish a distribution which we can use to calculate a p-value. For example some methods have been proposed to calculate approximations for the degrees of freedom (e.g. Kenward-Roger, Satterthwaite) such that the t-distribution can be used in a manner similar to standard regression analysis. Crucially though there is no widely accepted method for calculating degrees of freedom exists. The `lme4` package does not calculate p-values for the coefficients on principle [see discussion](https://stat.ethz.ch/pipermail/r-help/2006-May/094765.html).
+
+However, for many this is not a satisfactory conclusion, so a second package `lmerTest` has been developed, which if loaded alongside lme4, adds p-values to the above table. It is worthwhile noting thought that, there are multiple methods to calculate p-values, and that might introduce some variation. More importantly the different methods are based on different assumptions and therefore may introduce misleading results if these are not appropriate for your data set.
+
+To use the `lmerTest` functionality, as before we need to install and load this package.
 
 ```{r}
 library(lmerTest)
@@ -182,9 +273,19 @@ summary(model.rand.int)
 
 ```
 
-We can see from the coefficients table, that R has used the t-distribution to calculate p-values for the fixed effects. By default `lmerTest` uses the Satterwaite approximation to calculate the degrees of freedom for this test (stated at the top of the output, alongside the method for estimating the coefficients). In the results we can see that the `VisitNum` variable is significantly positively associated with the performance in cognitive test A. The random effects are summarized by their estimated variance statistics. We can see that the variance of the individual intercepts is `r signif(as.data.frame(VarCorr(model.rand.int))[1,"vcov"], 2)`. 
+We can see from the coefficients table, that R has used the t-distribution to calculate p-values for the fixed effects. By default `lmerTest` uses the Satterwaite approximation to calculate the degrees of freedom for this test (stated at the top of the output, alongside the method for estimating the coefficients). In the results we can see that the `VisitNum` variable is significantly positively associated with the performance in cognitive test A (p = `r signif(summary(model.rand.int)$coefficients["VisitNum",5],2)`). We can interpret the parameter for this variable as we typically would, where the value represents the change in the outcome for one unit increase in this variable, i.e. the change in score for cognitive test A for each extra visit. Specifically, participants had a mean increase in score of `r signif(summary(model.rand.int)$coefficients["VisitNum",1],2)` per visit.
 
-Unlike with the linear model, there is no overall regression test, or any summary of the model fit. Our primary concern with the mixed effects model, is whether the random intercept is needed. To test this we will use the likelihood ratio test to see if it significantly improves the fit of the model. To make this comparison we need to fit a standard linear model with the same fixed effects terms, but omitting the random effect. We can then use the `anova()` function to calculate the test statistics and perform the comparision with the $\chi^2_{1}$ distribution to calculate a p-value.   
+We can also extract information about the variables we fitted as random effects. As described above for these, we are estimating parameters of their distribution and specifically the variance of this distribution. For this model, the variance of the individual intercepts is `r signif(as.data.frame(VarCorr(model.rand.int))[1,"vcov"], 2)`. These are hard to attribute much meaning to, but they represent the width of the distribution that the individual effects come from. A larger number imlies a wider distribution and consequently more variation in the individual effects. 
+
+We can also do significance testing of the random effects, to determine if the random intercept is needed. Just because we conceptualize that there should/might be structure in our data doesn't mean that there is or that it's effects are large enough for us to need to model it. Given the complexities of significance testing a fixed effect in a mixed effects model, if we can get away with a simpler regression model, we should favour that. 
+
+The principle behind a random effect is that each group needs it's own value taken from a distribution and the effects of the groups can not be represented by a single value (as they would it is was modelled as a fixed effect). Therefore, our null hypothesis (which equates to the random effects not being necessary) requires there to be no distribution of effects, which would occur if the variance of the distribution was 0. The alternative hypothesis (which equates to random effects being necessary) is that there is a distribution and hence it has a non-zero variance. These situations can be represented below.
+
+
+$$H_{null}: \sigma_{u}^2 = 0$$
+$$H_{alternative}: \sigma_{u}^2 \neq 0$$
+
+To determine whether we can reject the null hypothesis, we will use the likelihood ratio test to see if the inclusion of the random effect significantly improves the fit of the model. To make this comparison we need to fit a standard linear model with the same fixed effects terms, but omitting the random effect. We can then use the `anova()` function to calculate the test statistics and perform the comparison with the $\chi^2_{1}$ distribution to calculate a p-value.   
 
 ```{r}
 model.lm<-lm(CognitionA ~ VisitNum, data = cogDat)
@@ -193,21 +294,21 @@ anova(model.rand.int, model.lm)
 ```
 
 
-You will see in the first line of the output, R automatically refits the random intercepts model with maximum likelihood so that we can perform the likelihood ratio test. It then proceeds to summarise the statistics of the test and provides the p-value from a $\chi^2_{1}$ distribution, which is significant (P < 0.05). Therefore we can conclude that the addition of a random intercept for individual is an important component of the model. Note if we want a more specific p values than 2.2e-16, we can get that as follows. By using the fact that the anova output is a matrix, we can "slice" and select specific elements from.
+You will see in the first line of the output, R first refits the random intercepts model with maximum likelihood so that we can perform the likelihood ratio test. It then proceeds to summarise the statistics of the test and provides the p-value from a $\chi^2_{1}$ distribution, which is significant (P = `r signif(anova(model.rand.int, model.lm)[2,8],2)`). Therefore we can conclude that the addition of a random intercept for individual is an important component of the model. Note if we want a more specific p values than 2.2e-16, we can get that by using the fact that the anova output is a matrix and "slicing" the specific element.
 
 ```{r}
 anova(model.rand.int, model.lm)[2,8]
 
 ```
 
-Now there is in fact an inbuilt function to perform a test for significant random effects `ranova()`. Let's try it out.
+Note that there is also an inbuilt function to perform a test for significant random effects `ranova()`. Let's try it out.
 
 ```{r}
 
 ranova(model.rand.int)
 ```
 
-Looking at the output, we can see two rows, one for each model and the the number of degrees of freedom for the two models is right. If we just look at the p-value it is the same as when we manually coded the anova therefore we might think that we have performed the same analysis.  But on closer inspection we can see the log likelihood values and therefore the test statistic are subtly different. This method is in fact using the likelihood statistics from the model fitted using REML, rather than maximum likelihood which is incorrect. We can confirm this by extracting the log likelihood from our lmer model object (which we fitted using REML rather than ML), rather than refitting using maximum likelihood. 
+Looking at the output, we can see two rows, one for each model and the the number of degrees of freedom for the two models is right. If we just look at the p-value it is the same as when we manually coded the anova therefore we might think that we have performed the same analysis.  But on closer inspection we can see the log likelihood values and therefore the test statistic are subtly different. This method is in fact using the likelihood statistics from the model fitted using REML, rather than maximum likelihood which is statistically incorrect. We can confirm this by extracting the log likelihood from our lmer model object (which we fitted using REML rather than ML), rather than refitting using maximum likelihood. 
 
 ```{r}
 ## log likelihood of linear model
@@ -217,8 +318,9 @@ logLik(model.lm)
 logLik(model.rand.int)
 ```
 
-Now in reality the results are essentially the same, and indeed they would have been had we used ML to fit our regression model initially. But as before it may be preferable to use the `anova()` function to explicitly make the model comparisons.
+Now in reality the results are essentially the same, and indeed they would have been had we used ML to fit our regression model initially. But it may be preferable to use the `anova()` function to explicitly make the model comparisons, so that you can be confident that you know exactly what methods were used.
 
+### Extracting the results
 
 To pull out specific parts of the output we can then use the `$` or use built in functions. We can use `names()` to get a list of all the elements we can extract from the summary object. NB with a linear regression model we extract results using functions applied to the `lm()` output,(e.g `coef(model.lm)`) here we apply functions to the summary output of the `lmer` model (e.g. `coef(summary(model.rand.int))`).
 
@@ -247,9 +349,23 @@ The first `coef(summary(model.rand.int))` gives us just the fixed effects along 
 
 The second `coef(model.rand.int)` gives us the intercept and slope values for each level of our grouping variable i.e. it has combined the random and fixed effects for the intercept value so we have the individual specific intercept. The slope coefficients for age and sex are the same for all individuals as we did not estimate a random slope for either covariate. From this output we can make individual level predictions for the individuals in our observed data, which don't have much meaning for individuals not in our study. We have only extracted this output for the first six individuals, as otherwise it would run on for pages. This data is stored in a list, where each random variable has it's own slot, within which is a matrix of the regression parameters. As we have only one random variable we have only slot in our list, so it perhaps seems an unnecessary complicated structure, but it is designed to anticipate models with multiple random variables.  `lapply()` is a efficiency function in R which allows us to perform the same function to each slot of the list. Here we wanted to run the command `head()` to pull out the first 6 rows, so that we could make the output more manageable and get a sense of what the output looked like. 
 
+### Assumptions for random intercept model
+
+As with all statistical tests, the ability to calculate estiamtes of teh parameters and perform significance testing relies of assumptions about the data you are using. For mixed effects regression these are:
+
+* Linear relationship between predictors and outcomes.
+* Constant variance across range of predictor variables (homoscedasticity). 
+* Errors at every level are normally distributed.
+* The level 1 and level 2 residuals are uncorrelated.
+* The errors at the highest level are uncorrelated.
+
+### Graphical representation of mixed effects regression model
+
+
+
 ### Diagnostic plots
 
-There is no automatic way to produce the diagnostic plots like you can from the linear regression function (lm). However we can recreate these plots by extracting the required statistics from the lmer model object. Firstly, we can plot the residuals against the fitted values. In this plot we want the points to be randomly scattered with no evidence of a relationship between the x and y axis. Any evidence of the residuals being related to the fitted values may be indicative of a non-linear relationship between the dependent and independent variables. The second diagnostic plot we will create relates to the distribution of the residuals. Similar to linear regression, the residuals are assumed to be normally distributed with constant standard deviation. Therefore we can use a QQ plot to assess this (as well as look at the values proided in the summary of the model fit which should be symetric and have a median ~ 0).  An additional assumption, not applicable to linear regression, is that the random effects (either intercepts or coefficients) are also be normally distributed. Again we can use a qq plot to assess this. With a qq plot (or quantile-quantile plot), we are looking for the points to follow the diagonal line, any deviation indicates that the data are not normally distributed.
+There is no automatic way to produce the diagnostic plots like you can from the linear regression function (lm). However we can recreate these plots by extracting the required statistics from the `lmer` model object. Firstly, we can plot the residuals against the fitted values. In this plot we want the points to be randomly scattered with no evidence of a relationship between the x and y axis. Any evidence of the residuals being related to the fitted values may be indicative of a non-linear relationship between the dependent and independent variables. The second diagnostic plot we will create relates to the distribution of the residuals. Similar to linear regression, the residuals are assumed to be normally distributed with constant standard deviation. Therefore we can use a QQ plot to assess this (as well as look at the values proided in the summary of the model fit which should be symetric and have a median ~ 0).  An additional assumption, not applicable to linear regression, is that the random effects (either intercepts or coefficients) are also be normally distributed. Again we can use a qq plot to assess this. With a qq plot (or quantile-quantile plot), we are looking for the points to follow the diagonal line, any deviation indicates that the data are not normally distributed.
 
 ```{r}
 par(mar = c(4,4,1,1))
