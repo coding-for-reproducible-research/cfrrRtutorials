@@ -328,7 +328,7 @@ Now in reality the results are essentially the same, and indeed they would have 
 Write the R code required, to test using a mixed effects regression model, the following: 
 
 1. Is cognitive test B significantly associated with visit number?
-2. Is cognitive test B significantly associated with visit number?
+2. Is cognitive test C significantly associated with visit number?
 
 ```{r rand-intercept-signif, exercise=TRUE}
 
@@ -511,10 +511,28 @@ qqline(ranef(model.rand.slope)$ID[,2])
 
 ## Expanding the mixed effects model framework
 
-### Including more fixed effects.
+So far we have considered a single type of regression analysis with one continuous predictor variable and one continuous outcome variable and fitting a straight line between these. This has enabled us to get to grips with the core concepts but regression can do so much more than this. It is an incredibly flexible framework that can handle
 
-The power of regression is the ability to consider the effect of multiple variable simultaneously. 
+* different types of variables 
+* multiple variables
+* different relationships between variables 
 
+We will now look at how we extend the methodology to allow more complex analysis designs. You should think of regression as a modular approach which you select the necessary components depending on the 
+
+* properties of the outcome variable(s)
+* properties of the predictor variable(s)
+* the relationship that you want to model between each predictor variable and outcome variable.
+
+### Including more predictor variables
+
+We can easily incorporate more predictor variables as fixed effects into our model. As with linear regression, we need to specify these in the formula we provide to R. If in addition to `VisitNum` we want to control for differences between males and females we can include a fixed effect for `sex`.
+
+```{r}
+model.sex<-lmer(CognitionA ~ VisitNum  + Sex + (1 | ID), data = cogDat)
+summary(model.sex)
+```
+
+We can see that the fixed effect we have estimated for sex is not significant. 
 
 ### Logisitc mixed regression models
 
