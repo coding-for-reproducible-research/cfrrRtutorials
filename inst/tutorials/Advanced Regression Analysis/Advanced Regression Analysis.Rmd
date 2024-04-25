@@ -22,6 +22,9 @@ age<-floor(runif(nInd, 20, 60))
 intervention<-sample(c("Placebo", "Training"), nInd, replace = TRUE)
 yearsEd<-sample(c(12,14,17), nInd, replace = TRUE, prob = c(0.3,0.4, 0.3))
 smoke <- sample(c("Yes", "No"), nInd, replace = TRUE, prob = c(0.25,0.75))
+physicalWellbeing <- sample(c("High", "Low"), nInd, replace = TRUE, prob = c(0.85,0.15))
+mentalWellbeing <- sample(c("High", "Low"), nInd, replace = TRUE, prob = c(0.7,0.3))
+cogAbaseline <- cogAbaseline[(physicalWellbeing == "Low" | mentalWellbeing == "Low")]<- rpois(sum((physicalWellbeing == "Low" | mentalWellbeing == "Low")), 22)
 cogAbaseline <- cogAbaseline[smoke == "Yes"]<- rpois(sum(smoke == "Yes"), 23)
 
 visitID<-as.factor(rep(indIDs, nVisits))
@@ -33,14 +36,21 @@ visitAge<-age[index]+visitNum
 visitIntervention<-as.factor(intervention[index])
 visitYearsEd <- yearsEd[index]
 visitSmoke <- as.factor(smoke[index])
-
-cogA<- floor(cogAbaseline[index] + visitNum * (0.2 + 0.05 * as.numeric(visitIntervention)) + rnorm(length(visitNum), 0,2))
+visitPW <- as.factor(physicalWellbeing[index])
+randomIndex<-sample(1:length(index), nInd)
+visitPW[randomIndex]<-"Low"
+visitMW <-as.factor(mentalWellbeing[index])
+randomIndex<-sample(which(visitNum > 3), nInd*0.5)
+visitMW[randomIndex]<-"High"
+    
+cogA<- floor(cogAbaseline[index] + visitNum * (0.2 + 0.05 * as.numeric(visitIntervention) + 0.04 * as.numeric(visitMW)) + rnorm(length(visitNum), 0,2))
 
 cogB<-cogBbaseline[index] + visitNum * (0.1 + 0.03 * as.numeric(visitSex) + 0.05 * (visitYearsEd-12)) + rnorm(length(visitNum), 0, 2) 
 
 cogC<-cogCbaseline[index] + visitNum * (0.01 + 0.003 * as.numeric(visitSex) + 0.001 * as.numeric(visitIntervention)) + rnorm(length(visitNum), 0, 5) 
 
-cogDat<-data.frame("ID" = visitID, "VisitNum" = visitNum, "Age" = visitAge, "Sex" = visitSex, "YearsEducation" = visitYearsEd, "Smoker" = visitSmoke, "Intervention" = visitIntervention, "CognitionA" = cogA, "CognitionB" = cogB, "CognitionC" = cogC)
+
+cogDat<-data.frame("ID" = visitID, "VisitNum" = visitNum, "Age" = visitAge, "Sex" = visitSex, "YearsEducation" = visitYearsEd, "Smoker" = visitSmoke, "Intervention" = visitIntervention, "CognitionA" = cogA, "CognitionB" = cogB, "CognitionC" = cogC, "PhysicalWellbeing" = visitPW, "MentalWellbeing" = visitMW)
 
 ```
 
@@ -579,7 +589,7 @@ This test returns a p-value > 0.05, indicating that the data are consistent with
 ### Exercise 2
 
 
-*Let's see if the other cognitive tests also change consistently over time*
+*Let's try fitting some random slopes models.*
 
 Write the R code required,to test using a mixed effects regression model, the following: 
 
@@ -689,23 +699,31 @@ Random slopes model have all the same assumptions as random intercepts model plu
 
 If our results did suggest that the random slopes model had some value, we could repeat the diagnostic plots from before to check our model assumptions; this time thought we would need to add a fourth plot to check the residuals of the random slope term we estimate for each individual.
 
-```{r}
+```{r, fig.height = 6}
 # a plot to check the constant standard deviation
 plot(fitted(model.rand.slope),resid(model.rand.slope,type="pearson"),col="blue", xlab = "fitted", ylab = "residuals") 
 abline(h=0,lwd=2)
+```
 
+```{r, fig.height = 6}
 # normality of the residuals
 qqnorm(resid(model.rand.slope)) 
 qqline(resid(model.rand.slope))
+```
 
+```{r, fig.height = 6}
 # normality of the random intercept estimates
 qqnorm(ranef(model.rand.slope)$ID[,1]) 
 qqline(ranef(model.rand.slope)$ID[,1])
+```
 
+```{r, fig.height = 6}
 # normality of the random slope estimates
 qqnorm(ranef(model.rand.slope)$ID[,2])
 qqline(ranef(model.rand.slope)$ID[,2])
 ```
+
+As with the random intercepts model these look pretty reasonable and no reason to believe the model is biased.
 
 ### Some notes on model formulation
 
@@ -766,36 +784,190 @@ summary(model.sex)
 
 We can see that the fixed effect we have estimated for sex is not significant. 
 
+
+
 ### Logistic mixed effects regression models
 
 If our outcome is a binary variable we alternatively need to fit a logistic regression model. For an explanation as to why, please see the **Introduction to Regression Analysis** tutorial. As logistic regression requires a generalized linear model framework, we need to use the function `glmer()` rather than `lmer()`.
 
-Let's look to see if there is a difference in cognitive performance between individuals who currently smoke.  
+Let's look to see if in general the participants mental well being improves as the study progresses. The variable that captures change over the course of the study is `VisitNum` so this is our predictor variable, we keep our random effect for `ID` and our outcome variable is the factor `MentalWellbeing` 
 
 ```{r}
-model.smoke <- glmer(Smoker ~ CognitionA + (1 | VisitNum), data = cogDat, family="binomial")
-summary(model.smoke)
+model.log <- glmer(MentalWellbeing ~ VisitNum + (1 | ID), data = cogDat, family="binomial")
+summary(model.log)
+
 ```
 
+Let's see if we need the random intercept which is essentially asking the question whether an individuals well being at one point in the study predicts their well being at another stage. It is important to do this for each model, because just because individual has an affect on one variable, doesn't automatically mean it affects all variables in a data set. 
 
-### Significance testing of fixed effects with anova
-
-As with linear regression we can use `anova()` to compare the joint effect of fixed effects. Note that the random effects must be identical and the fixed effects must be nested (i.e. one is a subset of the other). This can only be done if we used the maximum likelhood method (set by including the argument `REML = FALSE`), however if the model was intially fitted with `REML = TRUE`, R will first refit the model with `REML = FALSE` and then perform the anova. Here we will compare our random intercepts model with and without a fixed effect for sex
+As before we do this my comparing it to a standard regression model with just fixed effects and no random effects. As the standard model also needs to be a logistic regression model we use the `glm()` function to fit it. We then use an `anova()` to compare the models with and without the random effects.
 
 ```{r}
-model.rand.int.null<-lmer(CognitionA ~ visitNum  + (1 | ID), data = cogDat)
+null.log <- glm(MentalWellbeing ~ VisitNum, data = cogDat, family="binomial")
+anova(model.log, null.log)
+```
 
-anova(model.rand.int, model.rand.int.null)
+These results show that the inclusion of the random intercept does significantly improve the fit of the model as P < 0.05. Therefore we can conclude that individual's mental well being is correlated across the course of the study. 
+
+We interpret the fixed effects as we would for any other logistic regression model - they relate to the log odds ratio of the outcome per one unit increase in the predictor variable. As a one unit increase in the predictor variable equates to one extra visit, we can summarise from this model that each extra visit is associated with a log odd ratio of `r signif(summary(model.log)$coefficients["VisitNum", "Estimate"],2)`. We can convert this to an odds ratio by raising it to an exponential. 
+
+```{r}
+exp(coef(summary(model.log))[,"Estimate"])
+```
+
+So the odds of having low mental well being relative to high mental well being decreases by a factor of `r signif(exp(coef(summary(model.log))["VisitNum","Estimate"]),2)` for each extra visit. We can flip this round and say that each visit increases the odds of having high mental well being by a factor of `r signif(1/exp(coef(summary(model.log))["VisitNum","Estimate"]),2)`. Note that the individual level intercepts represent each individuals baseline odds ratio for their mental well being. 
+
+### Exercise 3
+
+
+*Let's practise fitting more complex mixed effects models*
+
+Write the R code required to test using a mixed effects regression model the following. For eachmodel include a random intercept for individual. 
+
+1. Is cognitive performance measured by any of the three tests influenced by smoking or years of education? 
+
+
+```{r exercise3a, exercise=TRUE}
+
+
+model.coga<-lmer(CognitionA ~ VisitNum + ... + (1|ID), data = cogDat)
+model.cogb<-
+model.cogc<-
+
+
 
 ```
 
-We can see the p-value is \> 0.05 then we would conclude that sex does not significantly improve the model inline with the t-test of the fixed effect coefficient.
+```{r exercise3a-solution}
 
-For more information on reasons why a model might not converge we can look at the documentation for the lmer package.
+model.coga<-lmer(CognitionA ~ VisitNum + Smoker + YearsEducation + (1|ID), data = cogDat)
+summary(model.coga)
 
-```{r, eval = FALSE}
-?convergence
+model.cogb<-lmer(CognitionB ~ VisitNum + Smoker + YearsEducation + (1|ID), data = cogDat)
+summary(model.cogb)
+
+model.cogc<-lmer(CognitionC ~ VisitNum + Smoker + YearsEducation + (1|ID), data = cogDat)
+summary(model.cogc)
+
 ```
+
+```{r quiz4, echo=FALSE}
+quiz(caption = "Questions on the exercise above",
+question("Smoking behaviour is significantly associated (P < 0.05) with which cognitive tests? Select all that apply",
+  answer("Cognition A"),
+  answer("Cognition B"),
+  answer("Cognition C"),
+  answer("None", correct = TRUE),
+  allow_retry = TRUE),
+question("Years of education is significantly associated (P < 0.05) with which cognitive tests? Select all that apply",
+  answer("Cognition A"),
+  answer("Cognition B"),
+  answer("Cognition C", correct = TRUE),
+  answer("None"),
+  allow_retry = TRUE),
+question("Considering the results for cognitive test C, what is the value of coefficient for years of education?",
+  answer("15.5"),
+  answer("0.032"),
+  answer("0.089"),
+  answer("0.31", correct = TRUE),
+  allow_retry = TRUE),
+question("What is the correct interpretation of the value of coefficient for years of education?",
+  answer("It is the mean cognitive score for those with 0 years of education."),
+  answer("It is the mean cognitive score for those with at least 1 year of education."),
+  answer("It is the mean change in cognitive score per year of education.", correct = TRUE),
+  answer("It is the mean change in cognitive score per 12 years of education."),
+  allow_retry = TRUE)
+)
+```
+
+
+
+2. Does cognitive performance in any of the three tests influence the mental well being of the participants? Include co-variates for sex and years of education.
+
+
+```{r exercise3b, exercise=TRUE}
+
+
+model.mw.coga<-glmer(MentalWellebing ~ CognitionA + VisitNum + ... + (1|ID), data = cogDat)
+model.mw.cogb<-
+model.mw.cogc<-
+
+
+
+```
+
+```{r exercise3b-solution}
+
+model.mw.coga<-glmer(MentalWellbeing ~ CognitionA + VisitNum + Sex + YearsEducation + (1|ID), data = cogDat, family = "binomial")
+summary(model.mw.coga)
+
+model.mw.cogb<-glmer(MentalWellbeing ~ CognitionB + VisitNum + Sex + YearsEducation + (1|ID), data = cogDat, family = "binomial")
+summary(model.mw.cogb)
+
+model.mw.cogc<-glmer(MentalWellbeing ~ CognitionC + VisitNum + Sex + YearsEducation + (1|ID), data = cogDat, family = "binomial")
+summary(model.mw.cogc)
+
+## alternatively we could test simultaneously but fails to converge
+
+model.mw.cogall<-glmer(MentalWellbeing ~ CognitionA + CognitionB + CognitionC + VisitNum + Sex + YearsEducation + (1|ID), data = cogDat, family = "binomial")
+summary(model.mw.cogall)
+
+```
+
+```{r quiz5, echo=FALSE}
+quiz(caption = "Questions on the exercise above",
+question("Which cognitive tests significantly influence mental well being? Select all that apply",
+  answer("Cognition A", correct = TRUE),
+  answer("Cognition B"),
+  answer("Cognition C"),
+  answer("None"),
+  allow_retry = TRUE),
+question("Which cognitive tests are associated with increasing mental well being from low to high? You can ignore whether they are significant or not. Select all that apply.",
+  answer("Cognition A"),
+  answer("Cognition B"),
+  answer("Cognition C"),
+  answer("None", correct = TRUE),
+  allow_retry = TRUE), 
+question("What is the intepretation of the coefficient for each cognition test?",
+  answer("It represents the change in cognitive score needed to go from low mental well being to high mental well being."),  
+  answer("It represents the change in cognitive score needed to go from high mental well being to low mental well being."),
+  answer("It represents the log odds ratio of change in mental wellbeing from low to high per one point on the cognitive test.", correct = TRUE),
+  answer("It represents the log odds ratio of change in mental wellbeing from high to low per one point on the cognitive test."),
+  allow_retry = TRUE)
+)
+```
+
+
+3. Does physical well being improve over the course of the study?
+
+
+```{r exercise3c, exercise=TRUE}
+
+
+
+
+```
+
+```{r exercise3c-solution}
+
+model.pw<-glmer(PhysicalWellbeing ~ VisitNum +(1|ID), data = cogDat, family = "binomial")
+summary(model.pw)
+
+```
+
+```{r quiz6, echo=FALSE}
+quiz(caption = "Questions on the exercise above",
+question("Does physical well being improve over the course of the study?",
+  answer("Yes but not significantly."),
+  answer("Yes there is a significant increase in physical wellbeing."),
+  answer("No but not significantly.", correct = TRUE),
+  answer("No there is a significant decrease in physical wellbeing."),
+  allow_retry = TRUE)
+)
+```
+
+
+
 
 ## Regression models with interaction terms
 
