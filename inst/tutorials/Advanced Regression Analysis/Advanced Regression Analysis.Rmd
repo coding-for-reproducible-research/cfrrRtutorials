@@ -971,6 +971,47 @@ question("Does physical well being improve over the course of the study?",
 
 ## Regression models with interaction terms
 
+Regression allows us to explore complex relationships between more than two variables. Next, we are going to look at how to model these. Perhaps we have two variables, height and weight, and we are interesting in how their relationship is affected by sex. We could split our data in two subsets, one for males and one for females and fit two separate regression analyses. With those results we could then compare the outcomes. It can be really tempting to compare if the are both significant or not. This can be a trap though as significance is influence not just by whether there is an effect but also the variation in the sample, the size of the effect and the size of the data sets. If you have different numbers of males and females, it could just be that you have power to detect an effect in one sex and not the other. Instead you could compare the estimated regression parameters, but they will inevitably be different due to sampling variation, even if they should be the same. So how do you decide if they are different enough to be interesting? Ideally we want to do a statistical test to quantify is there is evidence of a difference. To do that we need to include both groups in the same regression model.   
+
+Interaction terms in regression models allow us to explore whether the relationship between two predictor variables depends on the value of a third variable. They are particularly useful when we suspect that the effect of one predictor on the outcome variable might vary depending on the level of another predictor.
+
+When we include co-variates in our regression models we assume they have a (fixed) additive effect that represents the effect of all the samples in our data set.
+
+Let's explore this for our height and weight example with the following regression model:
+
+$$weight = \beta_{0} + \beta_{1} height + \beta_{2} sex$$
+where for females, sex = 0 and for males, sex = 1.
+
+If we want to make predictions for females (i.e. when sex = 0), the equation becomes:
+
+$$weight = \beta_{0} + \beta_{1} height + \beta_{2} 0 = \beta_{0} + \beta_{1} height$$
+
+The relationship between height and weight is captured by $\beta_{1}$
+
+If we want to make predictions for males (i.e. when sex = 1), the equation becomes:
+
+$$weight = \beta_{0} + \beta_{1} height + \beta_{2} 1 = \beta_{0} + \beta_{1} height  + \beta_{2}$$
+While the intercept differs, the relationship between height and weight is also captured by $\beta_{1}$. If we want to allow for sex specific effects, we need the slope to be captured by parameters that depend on sex. This what an interaction term does, by multiplying two or more predictor variables together to investigate whether their joint effect on the outcome is different from what would be expected if their effects were independent of each other. Of course with an extra term in the model we have an extra parameter. 
+
+$$weight = \beta_{0} + \beta_{1} height + \beta_{2} sex + \beta_{3} height * sex$$
+
+If we repeat what we did before and create the formula for the predictions for a female and male, we can see how this works. 
+
+
+To predict weight for a female (i.e. $sex = 0$)
+$$weight = \beta_{0} + \beta_{1} height + \beta_{2} 0 + \beta_{3} height * 0 = \beta_{0} + \beta_{1} height$$
+
+To predict weight for a male (i.e. $sex = 1$)
+$$weight = \beta_{0} + \beta_{1} height + \beta_{2} 1 + \beta_{3} height * 1 \\ = \beta_{0} + \beta_{1} height  + \beta_{2} + \beta_{3} height = (\beta_{0} + \beta_{2}) + (\beta_{1} + \beta_{3})height$$
+
+| Sex    | Intercept | Slope coefficient |
+| -------- | ------- | ------- |
+| female  | $\beta_{0}$    | $\beta_{1}$ |
+| male | $\beta_{0} + \beta_{2}$     | $\beta_{1} + \beta_{3}$|
+
+
+We still have the sex specific intercepts, but this time we additionally have a sex specific slope parameters for height. With $\beta_{3}$ capturing the additional effect.
+
 We are going to look at how to code an interaction term in R by extending the multiple linear regression model we fitted in the previous workshop (Contact Day 3). If you recall, we fitted a model to see whether age and sex predict cognitive performance as measured by the general cognitive factor. Here we will add an interaction term between age and sex. To do this we need to add the interaction term to our formula.
 
 ```{r, eval=FALSE}
