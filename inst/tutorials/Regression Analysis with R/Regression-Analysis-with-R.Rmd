@@ -54,7 +54,7 @@ By the end of this session you will be able to:
 * describe the concept behind hypothesis testing in regression analysis
 * interpret the coefficients of a regression model
 * make predictions from a regression model
-* describe the between regression and other common statistical tools
+* describe the link between regression and other common statistical tools
 
 
 ### Pre-requisites
@@ -68,9 +68,9 @@ This course will not include an introduction to R, or how to setup and use R or 
 
 ### Course Notes
 
-This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attend a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these have also been designed such that you should also be able to work through them independently. 
+This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attending a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these materials have also been designed such that you should also be able to work through them independently. 
 
-You can navigate through the section using the menu on the side. Please note that the data required for the examples and exercises is predloaded within this interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to run them on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
+You can navigate through the section using the menu on the side. Please note that the data required for the examples and exercises is preloaded within this interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to run them on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
 
 ## Introduction to Regression
 
@@ -108,7 +108,7 @@ abline(a = -44, b = 0.62)
 
 To understand a bit more about regression parameters we are going to recap what a line is, specifically a straight line, in a mathematical sense. If we have two continuous variables such as height and weight, measured on the same set of individuals, we can visualise the relationship with a scatterplot like the one above.  From this plot we can try to generalise the relationship by drawing a straight line through the points. From this line we can make predictions of what weight a person might have if we know their height. 
 
-What enables us to do this, is the fact that we can represent this line and therefore this relationship as an equation. The standard equation for a straight line between two variables Y and X:
+What enables us to do this, is the fact that we can represent this line, and therefore this relationship, as an equation. The standard equation for a straight line between two variables Y and X:
 
 $$Y = \beta_{0}  + \beta_{1} X$$
 
@@ -116,14 +116,14 @@ You may have learnt this previously as
 
 $$Y = c  + m X$$
 
-These two equations are equivalent we have just used different notation for the coefficients. The coefficients are the value that we multiply our predictor variables by, and what we want to estimate from our data. They are sometimes called parameters.
+These two equations are equivalent we have just used different notation for the coefficients. The coefficients are the values that we multiply our predictor variables by, and what we want to estimate from our data. They are sometimes called parameters.
 
 There are two regression coefficients in this equation: 
 
 1. Intercept ($\beta_{0}$ ) - This is the value of the outcome variable when the predictor is set to 0. 
 2. Slope coefficient ($\beta_{1}$) - This is the change in the outcome variable for each unit of the predictor variable.
 
-When we know the values of these coefficients we can then input different values of X to make predictions for Y. What's more changing the values of these coefficients changes the position of the line in the graph and ultimately the relationship between X and Y. Below we showcase a number of different lines, can you characterise what is happening? 
+When we know the values of these coefficients we can then input different values of X to make predictions for Y. What's more, changing the values of these coefficients changes the position of the line in the graph and ultimately the relationship between X and Y. Below we showcase a number of different lines, can you characterise what is happening? 
 
 ```{r straight line multiple, echo = FALSE, fig.height= 6, fig.width=8, fig.pos="center"}
 par(mar = c(4,4,1,1))
@@ -152,7 +152,7 @@ abline(h = 0)
 
 ```
 
-What you should observe is that changing $\beta_{1}$ changes the slope of the line: 
+What you should observe is that changing $\beta_{1}$, i.e. the coefficient for the X variable, changes the slope of the line: 
 
 * the direction of the line changes depending if the parameter is negative or positive
 
@@ -166,7 +166,7 @@ You might also have observed that if we change the value of $\beta_0$, i.e the i
 
 We want to fit our line to a specfic set of data where we collected paired values for X and Y to enable us estimate the values of $\beta_{0}$ and $\beta_{1}$. It is out of the scope of this workshop to examine the precise mathematical details of how this is done, but it is important to understand that the principle behind the methodology is to draw the line that "best" fits the data by having the lowest total error. Here the error is defined as the difference between the observed value of Y and the predicted value of Y given X and our estimated model. 
 
-In R linear regression models can be fitted with the base function `lm()`. Let's look continue with our height and weight example. These data are available within this tutorial in the R object `demoDat`. In our R code we will use the formula style to specify the model we want to fit. You may recognise this type of syntax from other statistical functions such as `t.test()` or even plotting functions such as `boxplot()`. The equation of the line we wish to fit needs to be provided as an argument to the `lm` function:
+In R linear regression models can be fitted with the base function `lm()`. Let's look with our height and weight example. These data are available within this tutorial in the R object `demoDat`. In our R code we will use the formula style to specify the model we want to fit. You may recognise this type of syntax from other statistical functions such as `t.test()` or even plotting functions such as `boxplot()`. The equation of the line we wish to fit needs to be provided as an argument to the `lm` function:
 
 
 ```{r, eval = FALSE, echo = TRUE}
@@ -212,7 +212,7 @@ model <- lm(weight ~ height, data = demoDat)
 
 ```
 
-We can see that the estimated value for the intercept is `r signif(summary(model)$coefficients[1,1], 4)` and the estimated value for the height slope coefficient is `r signif(summary(model)$coefficients[2,1], 4)`. As the height parameter is positive, we can conclude that weight increases as the participants get taller. More than that we can quantify by how much. The value of the regression parameter for height tells us how much weight changes by for a one unit increase of height. To interpret this we need to know the units of our variables. In this example height is measured in cm and weight in kg, so the value of our regression coefficient means that for each extra centimetre, an individual's weight increases by a mean of `r signif(summary(model)$coefficients[2,1],2)`kg.
+We can see that the estimated value for the intercept is `r signif(summary(model)$coefficients[1,1], 4)` and the estimated value for the height slope coefficient is `r signif(summary(model)$coefficients[2,1], 4)`. As the height parameter is positive, we can conclude that weight increases as the participants get taller. More than that we can quantify by how much. The value of the regression parameter for height tells us how much weight changes by for a one unit increase of height. To interpret this we need to know the units of our variables. In this example height is measured in cm and weight in kg, so the value of our regression coefficient means that for each extra centimetre of height, an individual's weight increases by a mean of `r signif(summary(model)$coefficients[2,1],2)`kg.
 
 
 ```{r,echo=FALSE}
@@ -230,7 +230,7 @@ We can write our estimated regression model as:
 
 *Let's practice fitting and interpretting the output of a simple linear regression model.*
 
-Write the R code required to characterise how `bmi` changes as the participants `age`. Both of these variables are available in the `demoDat` object you already have loaded in this tutorial. 
+Write the R code required to characterise how `bmi` changes as the participants `age`. Both of these variables are available in the `demoDat` object you already have loaded in this tutorial. You can enter your code into the box below and press the blue `Run code` button on the top right hand side of the box to execute the code. There is also a `Solution` button to check your solution or if you are stuck.
 
 ```{r ols, exercise=TRUE}
 
@@ -285,7 +285,7 @@ If $\beta_1 = 0$ then our equation becomes
 
 $$Y = \beta_0  + 0 X = \beta_{0}$$
 
-When you multiply anything by zero the answer is always 0. If the coefficient for our X variable is 0, regardless what the value of X is this will compute to 0. We can simplify our prediction equation and remove the X term from the equation. Our predictive equation for Y is no longer dependent on or influence by the predictor variable X.
+When you multiply anything by zero the answer is always 0. If the coefficient for our X variable is 0, regardless what the value of X is this will compute to 0. We can simplify our prediction equation and remove the X term from the equation. Our predictive equation for Y is no longer dependent on or influenced by the predictor variable X.
 
 This is essentially saying that there is no relationship between X and Y. This is the concept that underlies hypothesis testing in regression analysis. If there is a relationship between X and Y the regression parameter for X needs to be non-zero. If it is non-zero, then the value of X will have some effect of the prediction of Y, albeit it potentially quite small, but an effect none the less. 
 
@@ -297,7 +297,7 @@ $$H_{alternative}: \beta \neq 0$$
 To test these hypotheses with the observed data we implement the following steps:
 
 1. accumulate the evidence from the data
-2. use a statistical theory or the data to establish how normal/extreme this result is
+2. use a statistical theory or the data to establish how normal or extreme this result is
 3. apply some criteria to draw a conclusion in the context of the proposed hypotheses
 
 
@@ -339,10 +339,8 @@ From top to bottom, we have:
 We are probably most interested in the coefficients table which contains a summary of each estimated regression coefficient. The results for each coefficient are provided in a separate rows, with the intercept in the top row followed by 1 row for each explanatory variable and 4 columns. It is worth noting at this point that the intercept is also a regression coefficient which we can test. However, we almost never consider this result as 
 
 1. it is virtually always significantly non-zero 
+2. it doesn't tell us anything about relationships between the variables  
 
-and
-
-2. it doesn't tell us anything about relationships between variables  
 
 The columns in the coefficients table are as follows:
 
@@ -350,13 +348,13 @@ The columns in the coefficients table are as follows:
 |-------|------|
 | Estimate | estimated regression coefficient | 
 | Std. Error | standard error of the estimated regression coefficient |
-| t value | The test statistic (the ratio of the previous two columns) | 
+| t value | test statistic (the ratio of the previous two columns) | 
 | Pr(> t) | P-value comparing the t value to the Student's t distribution | 
 
 We can also see from the coefficients table above the slope parameter has a p-value < 0.05. Therefore we can conclude that it is significantly non-zero and reject the null hypothesis in favour of the alternative hypothesis. There is a statistically significant relationship between height and weight in this dataset.
 
 
-We can visualise this estimated model, by generating a scatterplot of the observed data and adding the fitted regression line to the plot. 
+We can visualise this estimated model, by generating a scatterplot of the observed data and adding the fitted regression line to the plot. This can be done simply by passing the output of the `lm` function into the `abline` function. 
 
 ```{r, fig.height= 5, fig.width=5, fig.pos="center"}
 par(mar = c(4,4,1,1))
@@ -407,11 +405,11 @@ question("Which of these statements are true for the relationship between BMI an
 
 ### Checking the Assumptions of Linear Regression
 
-As we mentionned before, by making assumptions about the characteristics of our data we can do significance testing. It is prudent therefore, to check whether these assumptions hold true so that we can be confident in the conclusion we have deduced. However, this is far from common practise. There are a number of reasons why. 
+As we mentioned before, by making assumptions about the characteristics of our data we can do significance testing. It is prudent therefore, to check whether these assumptions hold true so that we can be confident in the conclusion we have deduced. However, this is far from common practice. There are a number of reasons why. 
 
-Firstly, the assumptions are to some degree subjective and assessing them is not an exact science. It can be hard to know what to look for if you don't have much experience in fitting regression models. The underlying mathematics of regression is robust to some deviation from these assumptions. So there is some tolerence around these we can allow. Common tools to assess properties like Normality might not place the threshold for deviation in the same place as the statistical model needs. Often they are more conservative and therefore you might prematurely reject a valid result. 
+Firstly, the assumptions are to some degree subjective and assessing them is not an exact science. It can be hard to know what to look for if you don't have much experience in fitting regression models. The underlying mathematics of regression is robust to some deviation from these assumptions. So there is some tolerance around these we can allow. Common tools to assess properties like normality might not place the threshold for deviation in the same place as the statistical model needs. Often they are more conservative and therefore you might prematurely reject a valid result. 
 
-Secondly, (and perhaps most pertinent) it is not possible to check many of the assumptions without fitting the model first. Therefore, you run the risk that if you find a significant effect you get excited and forget to check the assumptions in favour of persuing a more exciting follow up question. However, as the assumptions are essential for deriving the formula to estimate and test the regresssion parameters, if they are violated we need to be cautious about accepting the results, especially if they are significant.
+Secondly, (and perhaps most pertinent) it is not possible to check many of the assumptions without fitting the model first. Therefore, you run the risk that if you find a significant effect you get excited and forget to check the assumptions in favour of persuing a more exciting follow up question. However, as the assumptions are essential for deriving the formula to estimate and test the regression parameters, if they are violated we need to be cautious about accepting the results, especially if they are significant.
 
 Functionality to do this is provided within R. We can easily generate 4 plots, where we can visually inspect some of the assumptions of linear regression by applying the `plot()` function to the output of an `lm()` call. We can see these plots for the height and weight examples from above.
 
