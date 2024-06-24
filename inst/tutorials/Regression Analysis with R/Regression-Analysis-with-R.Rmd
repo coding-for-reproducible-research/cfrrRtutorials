@@ -70,7 +70,7 @@ This course will not include an introduction to R, or how to setup and use R or 
 
 This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attend a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these have also been designed such that you should also be able to work through them independently. 
 
-You can navigate through the section using the menu on the side. 
+You can navigate through the section using the menu on the side. Please note that the data required for the examples and exercises is predloaded within this interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to run them on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
 
 ## Introduction to Regression
 
@@ -110,7 +110,7 @@ To understand a bit more about regression parameters we are going to recap what 
 
 What enables us to do this, is the fact that we can represent this line and therefore this relationship as an equation. The standard equation for a straight line between two variables Y and X:
 
-$$Y = \theta_{0}  + \theta_{1} X$$
+$$Y = \beta_{0}  + \beta_{1} X$$
 
 You may have learnt this previously as 
 
@@ -120,8 +120,8 @@ These two equations are equivalent we have just used different notation for the 
 
 There are two regression coefficients in this equation: 
 
-1. Intercept ($\theta_{0}$ ) - This is the value of the outcome variable when the predictor is set to 0. 
-2. Slope coefficient ($\theta_{1}$) - This is the change in the outcome variable for each unit of the predictor variable.
+1. Intercept ($\beta_{0}$ ) - This is the value of the outcome variable when the predictor is set to 0. 
+2. Slope coefficient ($\beta_{1}$) - This is the change in the outcome variable for each unit of the predictor variable.
 
 When we know the values of these coefficients we can then input different values of X to make predictions for Y. What's more changing the values of these coefficients changes the position of the line in the graph and ultimately the relationship between X and Y. Below we showcase a number of different lines, can you characterise what is happening? 
 
@@ -152,7 +152,7 @@ abline(h = 0)
 
 ```
 
-What you should observe is that changing $\theta_{1}$ changes the slope of the line: 
+What you should observe is that changing $\beta_{1}$ changes the slope of the line: 
 
 * the direction of the line changes depending if the parameter is negative or positive
 
@@ -160,11 +160,11 @@ What you should observe is that changing $\theta_{1}$ changes the slope of the l
 
 This is the coefficient that captures the relationship between our variables X and Y and enables us to model an unlimited number of linear relationships between these variables.  
 
-You might also have observed that if we change the value of $\theta_0$, i.e the intercept, the line moves up and down. The intercept is important if we are interested in making predictions but not so important if we want to understand how changing X influences Y. 
+You might also have observed that if we change the value of $\beta_0$, i.e the intercept, the line moves up and down. The intercept is important if we are interested in making predictions but not so important if we want to understand how changing X influences Y. 
 
 ### Fitting a Simple Linear Regression Model in R
 
-We want to fit our line to a specfic set of data where we collected paired values for X and Y to enable us estimate the values of $\theta_{0}$ and $\theta_{1}$. It is out of the scope of this workshop to examine the precise mathematical details of how this is done, but it is important to understand that the principle behind the methodology is to draw the line that "best" fits the data by having the lowest total error. Here the error is defined as the difference between the observed value of Y and the predicted value of Y given X and our estimated model. 
+We want to fit our line to a specfic set of data where we collected paired values for X and Y to enable us estimate the values of $\beta_{0}$ and $\beta_{1}$. It is out of the scope of this workshop to examine the precise mathematical details of how this is done, but it is important to understand that the principle behind the methodology is to draw the line that "best" fits the data by having the lowest total error. Here the error is defined as the difference between the observed value of Y and the predicted value of Y given X and our estimated model. 
 
 In R linear regression models can be fitted with the base function `lm()`. Let's look continue with our height and weight example. These data are available within this tutorial in the R object `demoDat`. In our R code we will use the formula style to specify the model we want to fit. You may recognise this type of syntax from other statistical functions such as `t.test()` or even plotting functions such as `boxplot()`. The equation of the line we wish to fit needs to be provided as an argument to the `lm` function:
 
@@ -177,15 +177,15 @@ lm(weight ~ height, data = demoDat)
 
 The dependent variable (taking the place of Y in the standard equation for a line above) goes on the left hand side of the `~` symbol. The predictor variable goes on the right hand side (taking the place of X in the standard equation for a line above). The code we have written is specifying the model:
 
-$$weight = \theta_0 + \theta_1 height$$
+$$weight = \beta_0 + \beta_1 height$$
 
 Note that we did not need to explicitly specify either the 
 
-* intercept ($\theta_0$)
+* intercept ($\beta_0$)
 
 or
 
-* regression coefficient  ($\theta_1$)
+* regression coefficient  ($\beta_1$)
 
 R knows to add these in automatically. 
 
@@ -271,19 +271,19 @@ If you have run regression models in other software or have seen the results of 
 
 Recall, how earlier we saw that the relationship between X and Y could be written down as a mathematical equation: 
 
-$$Y = \theta_{0}  + \theta_{1} X$$
+$$Y = \beta_{0}  + \beta_{1} X$$
 
-The important parameter for understanding the relationship between X and Y is $\theta_1$. Specifically the magnitude of $\theta_1$ tells us about the strength of the relationship between X and Y. When we looked at the different lines you could get by changing the values of $\theta_0$ and $\theta_1$ there were two very specific scenarios we didn't consider, when either $\theta_0 = 0$ or $\theta_1 = 0$. Let's see what happens to our equation in these situations:
+The important parameter for understanding the relationship between X and Y is $\beta_1$. Specifically the magnitude of $\beta_1$ tells us about the strength of the relationship between X and Y. When we looked at the different lines you could get by changing the values of $\beta_0$ and $\beta_1$ there were two very specific scenarios we didn't consider, when either $\beta_0 = 0$ or $\beta_1 = 0$. Let's see what happens to our equation in these situations:
 
-If $\theta_0 = 0$ then our equation becomes
+If $\beta_0 = 0$ then our equation becomes
 
-$$Y = 0  + \theta_{1} X = \theta_{1}X$$
+$$Y = 0  + \beta_{1} X = \beta_{1}X$$
 
-Recall that the intercept is the position on the y-axis when the line crosses. If $\theta_0 = 0$ then our line will cross the y-axis through the origin (i.e  the point (0,0)). 
+Recall that the intercept is the position on the y-axis when the line crosses. If $\beta_0 = 0$ then our line will cross the y-axis through the origin (i.e  the point (0,0)). 
 
-If $\theta_1 = 0$ then our equation becomes
+If $\beta_1 = 0$ then our equation becomes
 
-$$Y = \theta_0  + 0 X = \theta_{0}$$
+$$Y = \beta_0  + 0 X = \beta_{0}$$
 
 When you multiply anything by zero the answer is always 0. If the coefficient for our X variable is 0, regardless what the value of X is this will compute to 0. We can simplify our prediction equation and remove the X term from the equation. Our predictive equation for Y is no longer dependent on or influence by the predictor variable X.
 
@@ -292,8 +292,8 @@ This is essentially saying that there is no relationship between X and Y. This i
 
 To statistically test for a effect we requires an explicitly stated null hypothesis and alternative hypothesis. We will then use our observed data to summarise the evidence to determine if there is enough evidence to reject the null hypothesis in favour of the alternative. For each individual regression coefficient these are:
 
-$$H_{null}: \theta = 0$$
-$$H_{alternative}: \theta \neq 0$$
+$$H_{null}: \beta = 0$$
+$$H_{alternative}: \beta \neq 0$$
 To test these hypotheses with the observed data we implement the following steps:
 
 1. accumulate the evidence from the data
@@ -372,7 +372,7 @@ We can see the positively correlated relationship between height and weight. The
 
 ### Hypothesis Testing of Regression Coefficients Exercise 
 
-*Let's see if age has a significant effect on weight.*
+*Let's see if age has a significant effect on weight or bmi.*
 
 Write the R code required, to test using a regression model, the following: 
 
@@ -399,7 +399,7 @@ question("Which of these statements are true for the relationship between weight
 ),
 question("Which of these statements are true for the relationship between BMI and age? Apply a significance threshold of 0.05. Select all that apply.",
   answer("The intercept is significantly non-zero.", correct = TRUE),
-  answer("BMI is significantly associated with weight."), allow_retry = TRUE
+  answer("Age is significantly associated with BMI."), allow_retry = TRUE
 )
 )
 ```
@@ -510,7 +510,7 @@ So in conclusion we can see less desirable behaviour of our observed data as we 
 Write the R code required to determine if a regression model is an appropriate tool for assessing the relationship between:
 
 1. age and weight
-2. bmi and avearage number of alcohol units drunk per week (`alcohol_units`)
+2. bmi and average number of alcohol units drunk per week (`alcohol_units`)
 
 ```{r ols-plots, exercise=TRUE}
 
@@ -565,7 +565,7 @@ To include multiple predictor variables in our existing regression framework, we
 
 For example if we have two variables $X_1$ and $X_2$ and we want to use these together to predict Y we can fit the model 
 
-$$Y = \theta_0 + \theta_1 X_1 + \theta_2 X_2 $$
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 $$
 
 To accomodate the extra predictor variable we need to include an extra regression coefficient. This is still considered a linear regression model because we are combining the effects of these predictor variables in a linear (additive) manner.   
 
@@ -622,7 +622,7 @@ question("When just looking at the effect of age and exercise on BMI, what is th
   answer("Less exercise decreases BMI, but not significantly."),
   answer("Less exercise significantly decreases BMI."), allow_retry = TRUE
 ),
-question("What happens to the results for exercise when alcohol is also included in the model?",
+question("What happens to the results for exercise when alcohol is also included in the model? Apply a significance threshold of 0.05 to answer this question.",
   answer("The magnitude of the effect between exercise and bmi decreases and remains non-significant."),
   answer("The magnitude of the effect between exercise and bmi increases but remains non-significant."),
   answer("The magnitude of the effect between exercise and bmi decreases and is now significant."),
@@ -645,7 +645,7 @@ In the first scenario, you might be interested in quantifying the effect of each
 Let's define our regression model for two predictor variables $X_1$ and $X_2$ as:
 
 
-$$Y = \theta_0 + \theta_1 X_1 + \theta_2 X_2 $$
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 $$
 
 Previously we were interested if a single regression coefficient was non-zero as if that was the case that regression parameter would cause some quantity to be added to our prediction. The null hypothesis for testing the joint effect of two predictors is based on the same underlying concept, that there is no effect on the outcome from the predictor variables. The mathematical definition of this needs to be changed though to reflect that we have multiple predictor variables and regression coefficients. 
 
@@ -653,23 +653,23 @@ If there is no effect of $X_1$ and $X_2$ on Y, then the regression coefficients 
 
 This gives us the null hypothesis of
 
-$$H_{null}: \theta_1 = \theta_2 = 0$$
+$$H_{null}: \beta_1 = \beta_2 = 0$$
 
 and the alternative hypothesis of 
 
-$$H_{alternative}: \theta_1 \neq 0\text{ or  }\theta_2 \neq 0$$
+$$H_{alternative}: \beta_1 \neq 0\text{ or  }\beta_2 \neq 0$$
 
 Another way of thinking about this analysis is that we are comparing two models with and without the terms of interest. Our statistical question boils down to which of these models is a better fit to the data?
 
 The more complex model 1: 
 
-$$Y = \theta_0 + \theta_1 X_1 + \theta_2 X_2 $$
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 $$
 
 or 
 
 the simpler model 2: 
 
-$$Y = \theta_0 $$
+$$Y = \beta_0 $$
 
 To perform this statistical test we need to use the F-distribution rather than the T-distribution. Our test statistic is now based around the idea of variance explained. Mention of either the F-distribution or an analysis of variance explained might trigger an association with ANOVA, analysis of variance. Indeed you are right there is a link here. In fact the R function you need to run this analysis is `anova()`. But first we need to define and fit the two models we want to compare. We use just a `1` on the right hand side of the formula to specify we just want to include an intercept term.
 
@@ -710,21 +710,21 @@ lm(weight ~ sex, data = demoDat)
 
 As before R will automatically add the relevant regression parameters so this model can be written mathematically as:
 
-$$weight = \theta_0 + \theta_1 sex$$
+$$weight = \beta_0 + \beta_1 sex$$
 We have our intercept regression coefficient, our regression "slope" coefficient for the sex variable. In this equation the variable sex takes either the value 0 or the value 1 for each observation depending if it is male or female. We also use this coding strategy to make predictions from this equation. Let's demonstrate this - for males and females we can derive an equation that will represent their prediction. 
 
 For females, $sex$ = 0. If we substitute this in we get
 
-$$weight = \theta_0 + \theta_1 0 = \theta_0$$
+$$weight = \beta_0 + \beta_1 0 = \beta_0$$
 
-Because the regression parameter for the sex variable is multiplied by 0, it will always equal 0, regardless of the value of $\theta_1$. So the prediction for females is the value of the intercept only. 
+Because the regression parameter for the sex variable is multiplied by 0, it will always equal 0, regardless of the value of $\beta_1$. So the prediction for females is the value of the intercept only. 
 
 Let's do the same thing for males, where sex = 1: 
 
-$$weight = \theta_0 + \theta_1 1 = \theta_0 + \theta_1$$
-In this equation we multiply $\theta_1$ by 1 which can be simplified to $\theta_1$. So the equation for males is the intercept plus the slope coefficient for the sex variable. 
+$$weight = \beta_0 + \beta_1 1 = \beta_0 + \beta_1$$
+In this equation we multiply $\beta_1$ by 1 which can be simplified to $\beta_1$. So the equation for males is the intercept plus the slope coefficient for the sex variable. 
 
-This helps us understand how we interpret the value of the regression coefficient for a binary variable. $\theta_1$ is the only part of the equation that differs between the predictions for males and females. Therefore it has to capture the nessecary (mean) difference between the groups. More than that, it is not present in the equation for females but is present in the equation for males, so it specifically captures the difference in males relative to females. That means if it is positive, males have a higher mean than females. If it is negative males have a lower mean than females. 
+This helps us understand how we interpret the value of the regression coefficient for a binary variable. $\beta_1$ is the only part of the equation that differs between the predictions for males and females. Therefore it has to capture the nessecary (mean) difference between the groups. More than that, it is not present in the equation for females but is present in the equation for males, so it specifically captures the difference in males relative to females. That means if it is positive, males have a higher mean than females. If it is negative males have a lower mean than females. 
 
 The choice of how we code this variable is academic, the magnitude of the estimate will be the same, but the direction (i.e. the sign) would switch if instead we had males = 0 and females = 1.
 
@@ -773,7 +773,7 @@ Let's consider a slightly more complicated example - a categorical variable with
 
 To add this three level factor into our model we need to add both of these dummy variables. Each variable will also then need it's own regression coefficient. So if we were interested in the effect on weight of ethnicty our regression model would look like this:
 
-$$weight = \theta_0 + \theta_1 Asian + \theta_2 European$$
+$$weight = \beta_0 + \beta_1 Asian + \beta_2 European$$
 
 As before when we specify the model we want to fit in R, we don't need to explicitly state the regression coefficients. In a similar way, we don't need to manually add the relevant dummy variables, if you tell R to fit a regression model with a categorical variable, it will automatically add the relevant number of dummy variables. It will do this, even if it is not nesscessarily coded as a factor variable. 
 
@@ -792,7 +792,7 @@ As these are dummy variables, the interpretation of the estimated effect (i.e. r
 
 *Let's practice fitting a regression model with a categorical variable.*
 
-Fit a linear regression model to test for differences in weight by socioeconomic_ class_status.
+Fit a linear regression model to test for differences in weight by socioeconomic status (`socioeconomic_status`).
 
 ```{r multipleRegression, exercise=TRUE}
 
@@ -833,16 +833,16 @@ But often when we have a categorical variable with more than two groups our ques
 
 For the regression model
 
-$$weight = \theta_0 + \theta_1 Middle + \theta_2 High$$
+$$weight = \beta_0 + \beta_1 Middle + \beta_2 High$$
 
 if there was no relationship between socieconomic status and weight then neither regression parameter for either dummy variable would be non-zero. To remove them from the prediction equation both need to be equal to zero, which gives us the null hypothesis of:
 
-$$H_{null}: \theta_1 = \theta_2 = 0$$
+$$H_{null}: \beta_1 = \beta_2 = 0$$
 For there to be any benefit to the prediction equation of weight by knowing socioeconomic status, then we would need one of these slope coefficients to be non-zero. 
 
 So our alternative hypothesis becomes
 
-$$H_{alternative}: \text{there exists } \theta_i \neq 0,\text{ for i  = 1,2.}$$
+$$H_{alternative}: \text{there exists } \beta_i \neq 0,\text{ for i  = 1,2.}$$
 
 As before we are interested in the joint effect of multiple predictor variables. 
 
@@ -851,10 +851,10 @@ This approach can also be thought of as testing these two models:
 
 Model 1:
 
-$$weight = \theta_0$$
+$$weight = \beta_0$$
 Model 2:
 
-$$weight = \theta_0 + \theta_1 Middle + \theta_2 High$$
+$$weight = \beta_0 + \beta_1 Middle + \beta_2 High$$
 
 And asking whether Model 2 (the more complex model) is a significantly better predictor that Model 1 (which we sometimes refer to as the null model).
 
@@ -1048,7 +1048,7 @@ summary(glm(t2diabetes ~ age, data = demoDat))
 
 ```{r quiz6, echo=FALSE}
 quiz(
-question("What is the odds ratio for Type II Diabetes for each year of age?",
+question("What is the odds ratio for Type II Diabetes per each year of age?",
   answer("0.22", message = "This is the intercept coefficient."),
   answer("0.001", message = "This is the log odds ratio for age."),
   answer("1.25", message = "This is the intercept coefficient."),
@@ -1074,11 +1074,11 @@ summary(glm(t2diabetes ~ age + exercise_hours + alcohol_units, data = demoDat))
 quiz(
 question("What is the odds ratio for Type II Diabetes per one hour of exercise?",
   answer("1.76", message = "This is the intercept coefficient."),
-  answer("1.00", message = "This is the log odds ratio for age."),
-  answer("0.98", message = "This is the intercept coefficient."),
-  answer("0.97", correct = TRUE)), 
+  answer("0.003", message = "This is the log odds ratio per year of age"),
+  answer("-0.02", message = "This is the log odds ratio per one hour of exercise."),
+  answer("0.98", correct = TRUE)), 
 question("Which of these statements is true?",
-  answer("More exercise increases the risk of Type II Diabetes", message = "The OR is < 1, so this means a decrease in exercise is associated with an increase in odds for Type II Diabetes."),
+  answer("More exercise increases the risk of Type II Diabetes", message = "The OR is > 1, so this means an increase in exercise is associated with an increase in odds for Type II Diabetes."),
   answer("Less exercise increases the risk of Type II Diabetes", message = "The OR is < 1, so this means a decrease in exercise is associated with an increase in odds for Type II Diabetes.", correct = TRUE))
 )
 ```
@@ -1096,7 +1096,7 @@ anova(model.log.null, model.log.full, test = "Chisq")
 
 ```{r logisticRegression3-solution, exercise=TRUE}
 
-model.log.full<-glm(t2diabetes ~ age + bmi + ethnicity, data = demoDat)
+model.log.full<-glm(t2diabetes ~ age + bmi + socioeconomic_status, data = demoDat)
 model.log.null<-glm(t2diabetes ~ age + bmi, data = demoDat)
 anova(model.log.null, model.log.full, test = "Chisq")
 
