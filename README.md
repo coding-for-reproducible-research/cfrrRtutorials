@@ -69,3 +69,11 @@ You can then start the workshop in this document. You can navigate through the s
 # Contact details
 
 Please contact CodingForReproducibleResearch@exeter.ac.uk for details on these workshops.
+
+# Contributions guidelines
+
+Contributions to this repository follow those set out by the wider Coding For Reproducible Research Programme. Details can be found here:<insert link>.
+
+# Acknowledgements
+
+This materials were developed by Eilis Hannon as part of the Coding For Reproducible Research Programme. 
