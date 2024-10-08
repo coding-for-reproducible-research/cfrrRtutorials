@@ -56,6 +56,13 @@ By the end of this session you will be able to:
 * make predictions from a regression model
 * describe the link between regression and other common statistical tools
 
+While it is delivered as a stand alone session, it is designed as a part of a series of Regression with R workshops where the content develops the ideas further to give you a comprehensive understanding how regression can be used to address a broad range of questions. 
+
+The complete series includes:
+
+1. Introduction to Regression with R
+2. Regression Analysis in R: Adapting to Varied Data Types
+3. Mixed Effects Regression with R
 
 ### Pre-requisites
 
