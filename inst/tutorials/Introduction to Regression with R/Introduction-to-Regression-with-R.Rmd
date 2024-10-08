@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Regression Analysis with R"
+title: "Introduction to Regression with R"
 output: learnr::tutorial
 runtime: shiny_prerendered
 ---
@@ -41,7 +41,7 @@ demoDat <-data.frame(age, height, weight, bmi, ethnicity, socioeconomic_status, 
 
 ## Overview of Workshop
 
-Welcome to Introductory Regression Analysis with R. Our aim is to provide you with a comprehensive introduction to the statistical tool regression and how to perform these analyses in R.
+Welcome to **Introduction to Regression with R**. Our aim is to provide you with a comprehensive introduction to the statistical tool regression and how to perform these analyses in R.
 
 By the end of this session you will be able to:
 
