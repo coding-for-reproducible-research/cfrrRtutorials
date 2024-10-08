@@ -1,12 +1,11 @@
-Package: cfrrRTutorials
+Package: cfrr-r-tutorials
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Version: 1.0.0.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Eilis", "Hannon", , "e.j.hannon@exeter.ac.uk", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-6840-072X"))
+Description: This R package contains tutorials developed for workshops delivered as part of the Coding for Reproducble Research Training Programme at the Univeristy of Exeter.
+License: use_cc0_license()
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
