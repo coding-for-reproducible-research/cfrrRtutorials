@@ -316,7 +316,7 @@ For hypothesis testing of a regression coefficient for the predictor variable X 
 * The dependent variable Y has a linear relationship with the independent variable X.
 * The errors (residuals) are normally distributed.
 * The observed samples are independent.
-* The variances in each group are equal.
+* The variances across the range of predictor variables are equal.
 
 Let's revisit our R code to see how we can extract the results of the hypothesis testing for our regression model. 
 
@@ -536,13 +536,13 @@ So far we have considered a single type of regression analysis with one continuo
 * multiple variables
 * different relationships between variables 
 
-We will now look at how we extend the methodology to allow more complex analysis designs. You should think of regression as a modular approach which you select the necessary components depending on the 
+We will now look at how we extend the methodology to allow more complex analytical designs. You should think of regression as a modular approach where you select the necessary components depending on the 
 
 * properties of the outcome variable(s)
 * properties of the predictor variable(s)
 * the relationship that you want to model between each predictor variable and outcome variable.
 
-Different types of regression analysis you may be familar with include:
+Different types of regression analysis you may be familiar with include:
 
 **Simple Linear Regression**
 
@@ -559,7 +559,7 @@ Different types of regression analysis you may be familar with include:
 * multiple correlated dependent variables
 * $> 0$ predictor variable
 
-Next, we are going to discuss *Multiple Linear Regression* which allows us to look at the effect of multiple predictor variables simultaneously on an an outcome variable. 
+Next, we are going to discuss *Multiple Linear Regression* which allows us to look at the effect of multiple predictor variables simultaneously on an outcome variable. 
 
 ### Multiple Linear Regression 
 
@@ -569,7 +569,7 @@ For example if we have two variables $X_1$ and $X_2$ and we want to use these to
 
 $$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 $$
 
-To accomodate the extra predictor variable we need to include an extra regression coefficient. This is still considered a linear regression model because we are combining the effects of these predictor variables in a linear (additive) manner.   
+To accommodate the extra predictor variable we need to include an extra regression coefficient. This is still considered a linear regression model because we are combining the effects of these predictor variables in a linear (additive) manner.   
 
 
 In R we don't need any new functions to fit a multiple regression model, we can fit these models with the same `lm()` function. As before R will automatically add the right number of regression coefficients.
@@ -587,13 +587,12 @@ To report the results of this extra regression parameter we have a third row in 
 All of the assumptions from simple linear regression hold for multiple linear regression with the addition of one more:
 
 * The dependent variable Y has a linear relationship with the independent variables X.
-* Errors (residuals) are normally distributed.
-* Samples are independent.
-* Variances in each group are equal.
-* *Independent variables are not highly correlated with each other.*
+* The errors (residuals) are normally distributed.
+* The observed samples are independent.
+* The variances across the range of predictor variables are equal.
+* *The independent variables are not highly correlated with each other.*
 
 We can again use the `plot()` function to inspect these for a multiple regression model fit.
-
 
 ### Multiple Regression Analysis Exercise
 
@@ -601,8 +600,10 @@ We can again use the `plot()` function to inspect these for a multiple regressio
 
 Fit and interpret the following regress models.
 
-1. `bmi` predicted by `age` and `exercise_hours`. 
+1. `bmi` predicted by `age` and `alcohol_units`. 
 2. `bmi` predicted by `age`, `exercise_hours` and `alcohol_units`.
+
+Apply a significance threshold of 0.05.
 
 ```{r multiple-regression, exercise = TRUE}
 
@@ -610,7 +611,7 @@ Fit and interpret the following regress models.
 
 ```{r multiple-regression-solution}
 
-summary(lm(bmi ~ age + exercise_hours))
+summary(lm(bmi ~ age + alcohol_units))
 summary(lm(bmi ~ age + exercise_hours + alcohol_units))
 
 ```
@@ -618,17 +619,17 @@ summary(lm(bmi ~ age + exercise_hours + alcohol_units))
 
 ```{r quiz3, echo=FALSE}
 quiz(caption = "Questions on exercise above", 
-question("When just looking at the effect of age and exercise on BMI, what is the effect of exercise?",
-  answer("More exercise decreases BMI, but not significantly.", correct = TRUE),
-  answer("More exercise significantly decreases BMI."),
-  answer("Less exercise decreases BMI, but not significantly."),
-  answer("Less exercise significantly decreases BMI."), allow_retry = TRUE
+question("When just looking at the effect of age and alcohol on BMI, what is the effect of alcohol? Apply a significance threshold of 0.05 to answer this question.",
+  answer("More alcohol decreases BMI, but not significantly."),
+  answer("More alcohol significantly decreases BMI."),
+  answer("Less alcohol decreases BMI, but not significantly.", correct = TRUE),
+  answer("Less alcohol significantly decreases BMI."), allow_retry = TRUE
 ),
-question("What happens to the results for exercise when alcohol is also included in the model? Apply a significance threshold of 0.05 to answer this question.",
-  answer("The magnitude of the effect between exercise and bmi decreases and remains non-significant."),
-  answer("The magnitude of the effect between exercise and bmi increases but remains non-significant."),
-  answer("The magnitude of the effect between exercise and bmi decreases and is now significant."),
-  answer("The magnitude of the effect between exercise and bmi increases and is now significant.", correct = TRUE), allow_retry = TRUE)
+question("What happens to the results for alcohol when exercise is also included in the model? Apply a significance threshold of 0.05 to answer this question.",
+  answer("The magnitude of the effect between alcohol and bmi decreases and remains non-significant."),
+  answer("The magnitude of the effect between alcohol and bmi increases but remains non-significant.", correct = TRUE),
+  answer("The magnitude of the effect between alcohol and bmi decreases and is now significant."),
+  answer("The magnitude of the effect between alcohol and bmi increases and is now significant."), allow_retry = TRUE)
 )
 ```
 
@@ -649,9 +650,9 @@ Let's define our regression model for two predictor variables $X_1$ and $X_2$ as
 
 $$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 $$
 
-Previously we were interested if a single regression coefficient was non-zero as if that was the case that regression parameter would cause some quantity to be added to our prediction. The null hypothesis for testing the joint effect of two predictors is based on the same underlying concept, that there is no effect on the outcome from the predictor variables. The mathematical definition of this needs to be changed though to reflect that we have multiple predictor variables and regression coefficients. 
+Previously we were interested if a single regression coefficient was non-zero as if that was the case, then that regression parameter would cause some quantity to be added to the prediction. The null hypothesis for testing the joint effect of two predictors is based on the same underlying concept, that there is no effect on the outcome from the specified predictor variables. The mathematical definition of this null effect needs to be altered though to reflect that we have multiple predictor variables and regression coefficients. 
 
-If there is no effect of $X_1$ and $X_2$ on Y, then the regression coefficients for both terms will be zero. Such that they both get cancelled out of the equation and it can be simplfied to just the intercept. For there to be an improvement in the predictive capability of model, at least one of the two predictive variables needs to have a non-zero coefficient. 
+If there is no effect of $X_1$ **and** $X_2$ on Y, then the regression coefficients for both terms need to be zero. Such that they both get cancelled out of the equation and it can be simplified to just the intercept. For there to be an improvement in the predictive ability of model, at least one of the two predictive variables needs to have a non-zero coefficient. Importantly though, we only need one of them to improve the prediction to conclude that together they have an effect. 
 
 This gives us the null hypothesis of
 
@@ -673,9 +674,7 @@ the simpler model 2:
 
 $$Y = \beta_0 $$
 
-To perform this statistical test we need to use the F-distribution rather than the T-distribution. Our test statistic is now based around the idea of variance explained. Mention of either the F-distribution or an analysis of variance explained might trigger an association with ANOVA, analysis of variance. Indeed you are right there is a link here. In fact the R function you need to run this analysis is `anova()`. But first we need to define and fit the two models we want to compare. We use just a `1` on the right hand side of the formula to specify we just want to include an intercept term.
-
-
+To perform this statistical test we need to use the F-distribution rather than the T-distribution. Our test statistic is now based around the idea of variance explained. Mention of either the F-distribution or "an analysis of variance explained" might trigger an association with ANOVA, analysis of variance. Indeed there is a link here. In fact the R function needed to run this analysis is `anova()`. But first we need to define and fit the two models we want to compare. To specify the simpliest model possible, that with just an intercept term, we include just a `1` on the right hand side of the formula.
 
 ```{r}
 ## the more complex "full" model:
@@ -683,13 +682,12 @@ model.full <- lm(weight ~ age + height, data = demoDat)
 ## the simpler "null" model:
 model.null <- lm(weight ~ 1, data = demoDat)
 
-
+# compare the model fits
 anova(model.null, model.full)
 ```
 
 
-We can see in the output a table of test statistics where we can see an F-value is reported along with its p-value. In this example we have a (very) significant p-value. Therefore we conclude that a model with both age and height is significantly better than a model with just the intercept. From our analysis of the individual regression coefficients we know that this is predominantly due to the height variable. 
-   
+We can see in the output a table of test statistics where we can see an F-value is reported along with its p-value. In this example we have a (very) significant p-value. Therefore we conclude that a model with both age and height is significantly better than a model with just the intercept. From our previous analysis of the individual regression coefficients we know that this is predominantly due to the height variable. 
 
 ## Quiz
 
