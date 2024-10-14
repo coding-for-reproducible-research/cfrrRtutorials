@@ -45,7 +45,7 @@ Welcome to **Introduction to Regression with R**. Our aim is to provide you with
 
 By the end of this session you will be able to:
 
-* describe what regression is.
+* describe what regression is
 * fit a range of regression models with R including:
     * simple linear regression
     * multiple linear regression 
@@ -71,12 +71,11 @@ This course will not include an introduction to R, or how to setup and use R or 
 * what type of variables are available in R and how to work with these
 
 
-
 ### Course Notes
 
 This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attending a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these materials have also been designed such that you should also be able to work through them independently. 
 
-You can navigate through the section using the menu on the side. Please note that the data required for the examples and exercises is preloaded within this interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to run them on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
+You can navigate through the sections using the menu on the side. Please note that the data required for the examples and exercises is preloaded within this interactive document, so the commands/exercises only work within it. They **won't work** within the Rstudio console window. When you come to run them on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
 
 ## Introduction to Regression
 
@@ -89,7 +88,7 @@ It enables you to:
 * understand which variables affect other variables and how
 * make predictions from a new set of data
 
-It involves fitting a prespecified model to data, where model is a mathematical description of the relationship between the variables. Observed data is then used to determine what numbers or coefficients the model should have. 
+It involves fitting a prespecified model to data, where the model refers to a mathematical description of the relationship between the variables. Observed data is then used to determine what numbers or coefficients the model should have. 
 
 A regression model requires:
 
@@ -112,7 +111,7 @@ abline(a = -44, b = 0.62)
 
 ### What is a line?
 
-To understand a bit more about regression parameters we are going to recap what a line is, specifically a straight line, in a mathematical sense. If we have two continuous variables such as height and weight, measured on the same set of individuals, we can visualise the relationship with a scatterplot like the one above.  From this plot we can try to generalise the relationship by drawing a straight line through the points. From this line we can make predictions of what weight a person might have if we know their height. 
+To understand a bit more about regression parameters we are going to recap what a line is, specifically a straight line, in a mathematical sense. If we have two continuous variables such as height and weight, measured on the same set of individuals, we can visualise the relationship with a scatterplot like the one above.  From this plot we can try to generalise the relationship by drawing a straight line through the points. From this line we can make predictions of what weight a person would be expected to have, if we know their height. 
 
 What enables us to do this, is the fact that we can represent this line, and therefore this relationship, as an equation. The standard equation for a straight line between two variables Y and X:
 
@@ -122,14 +121,16 @@ You may have learnt this previously as
 
 $$Y = c  + m X$$
 
-These two equations are equivalent we have just used different notation for the coefficients. The coefficients are the values that we multiply our predictor variables by, and what we want to estimate from our data. They are sometimes called parameters.
+These two equations are equivalent we have just used different notation for the coefficients. The coefficients are the values that we multiply our predictor variables by. They are unknown but can be learned or estimated from our observed data. They are sometimes called parameters.
 
 There are two regression coefficients in this equation: 
 
-1. Intercept ($\beta_{0}$ ) - This is the value of the outcome variable when the predictor is set to 0. 
-2. Slope coefficient ($\beta_{1}$) - This is the change in the outcome variable for each unit of the predictor variable.
+1. Intercept ($\beta_{0}$ ) - This is the value of the outcome variable (Y) when the predictor (X) is set to 0. 
+2. Slope coefficient ($\beta_{1}$) - This is the change in the outcome variable (Y) for each unit of the predictor variable (X).
 
-When we know the values of these coefficients we can then input different values of X to make predictions for Y. What's more, changing the values of these coefficients changes the position of the line in the graph and ultimately the relationship between X and Y. Below we showcase a number of different lines, can you characterise what is happening? 
+When we know the values of these coefficients we can then input different values of X to make predictions for Y. We can also use these values to describe how Y changes as a function of X changing. 
+
+Importantly, changing the values of these coefficients changes the position of the line in the graph and ultimately the relationship between X and Y. Below we showcase a number of different lines, can you characterise what is happening? 
 
 ```{r straight line multiple, echo = FALSE, fig.height= 6, fig.width=8, fig.pos="center"}
 par(mar = c(4,4,1,1))
@@ -164,15 +165,15 @@ What you should observe is that changing $\beta_{1}$, i.e. the coefficient for t
 
 * the steepness of the slope is determined by the magnitude of this coefficient. 
 
-This is the coefficient that captures the relationship between our variables X and Y and enables us to model an unlimited number of linear relationships between these variables.  
+This is the coefficient that captures the relationship between our variables X and Y and enables us to model an unlimited number of linear relationships between these variables. 
 
 You might also have observed that if we change the value of $\beta_0$, i.e the intercept, the line moves up and down. The intercept is important if we are interested in making predictions but not so important if we want to understand how changing X influences Y. 
 
 ### Fitting a Simple Linear Regression Model in R
 
-We want to fit our line to a specfic set of data where we collected paired values for X and Y to enable us estimate the values of $\beta_{0}$ and $\beta_{1}$. It is out of the scope of this workshop to examine the precise mathematical details of how this is done, but it is important to understand that the principle behind the methodology is to draw the line that "best" fits the data by having the lowest total error. Here the error is defined as the difference between the observed value of Y and the predicted value of Y given X and our estimated model. 
+We want to fit our line to a specific set of data where we collected paired values for X and Y to enable us estimate the values of $\beta_{0}$ and $\beta_{1}$. It is out of the scope of this workshop to examine the precise mathematical details of how this is done, but it is important to understand that the principle behind the methodology is to draw the line that "best" fits the data by having the lowest total error. Here the error is defined as the difference between the observed value of Y and the predicted value of Y given X and our estimated model. The total error is calculated as effectively a sum across all observations. 
 
-In R linear regression models can be fitted with the base function `lm()`. Let's look with our height and weight example. These data are available within this tutorial in the R object `demoDat`. In our R code we will use the formula style to specify the model we want to fit. You may recognise this type of syntax from other statistical functions such as `t.test()` or even plotting functions such as `boxplot()`. The equation of the line we wish to fit needs to be provided as an argument to the `lm` function:
+In R, linear regression models can be fitted with the base function `lm()`. Let's look with our height and weight example. These data are available within this tutorial in the R object `demoDat`. In our R code we will use the formula style to specify the model we want to fit. You may recognise this type of syntax from other statistical functions such as `t.test()` or even plotting functions such as `boxplot()`. The equation of the line we wish to fit needs to be provided as an argument to the `lm` function:
 
 
 ```{r, eval = FALSE, echo = TRUE}
@@ -181,7 +182,7 @@ lm(weight ~ height, data = demoDat)
 
 ```
 
-The dependent variable (taking the place of Y in the standard equation for a line above) goes on the left hand side of the `~` symbol. The predictor variable goes on the right hand side (taking the place of X in the standard equation for a line above). The code we have written is specifying the model:
+The dependent variable (taking the place of Y in the standard equation for a line above) goes on the left hand side of the `~` symbol. The predictor variable goes on the right hand side (taking the place of X in the standard equation for a line above). The R code we have written specifies the model:
 
 $$weight = \beta_0 + \beta_1 height$$
 
@@ -218,7 +219,7 @@ model <- lm(weight ~ height, data = demoDat)
 
 ```
 
-We can see that the estimated value for the intercept is `r signif(summary(model)$coefficients[1,1], 4)` and the estimated value for the height slope coefficient is `r signif(summary(model)$coefficients[2,1], 4)`. As the height parameter is positive, we can conclude that weight increases as the participants get taller. More than that we can quantify by how much. The value of the regression parameter for height tells us how much weight changes by for a one unit increase of height. To interpret this we need to know the units of our variables. In this example height is measured in cm and weight in kg, so the value of our regression coefficient means that for each extra centimetre of height, an individual's weight increases by a mean of `r signif(summary(model)$coefficients[2,1],2)`kg.
+We can see that the estimated value for the intercept is `r signif(summary(model)$coefficients[1,1], 4)` and the estimated value for the height slope coefficient is `r signif(summary(model)$coefficients[2,1], 4)`. As the height regression coefficient is positive, we can conclude that weight increases as the participants get taller. More than that we can quantify by how much. The value of the regression coefficient for height tells us how much weight changes by for a one unit increase of height. To interpret this we need to know the units of our variables. In this example height is measured in cm and weight in kg, so the value of our regression coefficient means that for each extra centimetre of height, an individual's weight increases by a mean of `r signif(summary(model)$coefficients[2,1],2)`kg.
 
 
 ```{r,echo=FALSE}
@@ -231,10 +232,9 @@ We can write our estimated regression model as:
 `r equation`.
 
 
-
 ### Simple Linear Regression Exercise 
 
-*Let's practice fitting and interpretting the output of a simple linear regression model.*
+*Let's practice fitting and interpreting the output of a simple linear regression model.*
 
 Write the R code required to characterise how `bmi` changes as the participants `age`. Both of these variables are available in the `demoDat` object you already have loaded in this tutorial. You can enter your code into the box below and press the blue `Run code` button on the top right hand side of the box to execute the code. There is also a `Solution` button to check your solution or if you are stuck.
 
