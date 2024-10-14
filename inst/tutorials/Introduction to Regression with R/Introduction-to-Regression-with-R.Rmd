@@ -305,7 +305,7 @@ To test these hypotheses with the observed data we implement the following steps
 2. use a statistical theory or the data to establish how normal or extreme this result is
 3. apply some criteria to draw a conclusion in the context of the proposed hypotheses
 
-We have already started to accumulate the evidence by estimating the values of the regression coefficient. This estimate is then converted into a t-statistic (by dividing by the estimated standard error) which enables us to use a known statistical distribution to quantify how likely it is to occur. The relevant distribution here is the Student's t-distribution. With this knowledge we can then calculate a p-value which we used to decide which hypothesis our data supports. You might recognise the Student's t-distribution, if you are familar with t-tests. Hold this thought, we will revisit this later.
+We have already started to accumulate the evidence by estimating the values of the regression coefficient. This estimate is then converted into a t-statistic (by dividing by the estimated standard error) which enables us to use a known statistical distribution to quantify how likely it is to occur. The relevant distribution here is the Student's t-distribution. With this knowledge we can then calculate a p-value which we used to decide which hypothesis our data supports. You might recognise the Student's t-distribution, if you are familar with t-tests. Hold this thought, the link between t-tests and regression is explored in the second session in this series. 
 
 ### Statistical Assumptions
 
@@ -720,19 +720,19 @@ quiz(caption = "Have ago at these questions to test your knowledge.",
            answer("The value of the regression coefficient is less than 0."),
            answer("The value of the regression coefficient is not equal to 0.")),  
   
-question("For the regression model $test_score ~ age$, how many regression coefficients are there?",
+question("For the regression model coded in R as $test_{score} ~ age$, how many regression coefficients are there?",
            answer("1"),
            answer("2", correct = TRUE),
            answer("3"),
            answer("4")),
 
-question("For the regression model $test_score ~ 1$, how many regression coefficients are there?",
+question("For the regression model  coded in R as $test_{score} ~ 1$, how many regression coefficients are there?",
            answer("1", correct = TRUE),
            answer("2"),
            answer("3"),
            answer("4")),
 
-question("For the full model $y ~ age + education_years$, which of this are valid null models? Select all that apply",
+question("For the full model $y ~ age + education_years$, which of these are valid null models? Select all that apply",
            answer("$y ~ 1", correct = TRUE),
            answer("$y ~ age + sex"),
            answer("$y ~ age + status"),
@@ -745,26 +745,21 @@ question("For the full model $y ~ age + education_years$, which of this are vali
 
 In this session we have covered a number of concepts:
 
-* An overview of what is regression
+* An overview of what regression is
 * How to represent a line as an equation
 * What the regression coefficients represent
 
-
-We have covered a number of different types of regression analysis:
+We have covered a two different types of regression analysis:
 
 * Simple Linear Regression
 * Multiple Linear Regression
-* Logistic Regression
 
 We have looked at what hypothesis or significance testing means for a regression model to test
 
 * individual regression coefficients on an outcome
 * the joint effect of multiple predictor variables on an outcome
 
-As a consequence we have drawn out the link between regression and 
-
-* t-tests
-* ANOVA
+As a consequence we have drawn out the overlap between regression and ANOVA.
 
 In summary regression is a modular framework that can be used to test a endless range of analytical questions.
 
@@ -838,7 +833,6 @@ Note that as well as directly assessing these slots using the `$` command, there
 ### Simple Linear Regression Link between F-test and T-test
 
 We can also use an F-test to test a single predictor variable in our model. 
-
 
 
 ```{r}
