@@ -291,12 +291,11 @@ If $\beta_1 = 0$ then our equation becomes
 
 $$Y = \beta_0  + 0 X = \beta_{0}$$
 
-When you multiply anything by zero the answer is always 0. If the coefficient for our X variable is 0, regardless what the value of X is this will compute to 0. We can simplify our prediction equation and remove the X term from the equation. Our predictive equation for Y is no longer dependent on or influenced by the predictor variable X.
+When you multiply anything by zero the answer is always 0. If the coefficient for our X variable is 0, regardless what the value of X is this will compute to 0. We can, therefore, simplify our prediction equation and remove the X term from the equation. Our predictive equation for Y is no longer dependent on or influenced by the predictor variable X.
 
 This is essentially saying that there is no relationship between X and Y. This is the concept that underlies hypothesis testing in regression analysis. If there is a relationship between X and Y the regression parameter for X needs to be non-zero. If it is non-zero, then the value of X will have some effect of the prediction of Y, albeit it potentially quite small, but an effect none the less. 
 
-
-To statistically test for a effect we requires an explicitly stated null hypothesis and alternative hypothesis. We will then use our observed data to summarise the evidence to determine if there is enough evidence to reject the null hypothesis in favour of the alternative. For each individual regression coefficient these are:
+To statistically test for a effect we require an explicitly stated null hypothesis and alternative hypothesis. We will then use our observed data to summarise the evidence to determine if there is enough evidence to reject the null hypothesis in favour of the alternative. For each individual regression coefficient these hypotheses are:
 
 $$H_{null}: \beta = 0$$
 $$H_{alternative}: \beta \neq 0$$
@@ -306,25 +305,24 @@ To test these hypotheses with the observed data we implement the following steps
 2. use a statistical theory or the data to establish how normal or extreme this result is
 3. apply some criteria to draw a conclusion in the context of the proposed hypotheses
 
-
-We have already started to accumulate the evidence by estimating the values of the regression coefficient. This estimate is then converted into a t-statistic (by dividing by the estimated standard error) which enables us to use a known statistical distribution to quantify how likely it is to occur. The relevant distribution here is the Student's t-distribution. With this knowledge we can then calculate a p-value which we used to decide which hypothesis our data favours. You might recognise this distribution, if you are familar with t-tests. Hold this thought, we will revist this later.
+We have already started to accumulate the evidence by estimating the values of the regression coefficient. This estimate is then converted into a t-statistic (by dividing by the estimated standard error) which enables us to use a known statistical distribution to quantify how likely it is to occur. The relevant distribution here is the Student's t-distribution. With this knowledge we can then calculate a p-value which we used to decide which hypothesis our data supports. You might recognise the Student's t-distribution, if you are familar with t-tests. Hold this thought, we will revisit this later.
 
 ### Statistical Assumptions
 
-To enable us to complete this process, we have made a series of assumptions about the data. If these do not hold true, this process potentially falls apart. So understanding the context with which hypothesis testing has been formulated is important for deriving accurate and meaningful statistical inference.
+To enable us to complete this process, we have made a series of assumptions about the data. If these do not hold true, this process potentially falls apart. So understanding the context with which hypothesis testing has been formulated is important for performing accurate and meaningful statistical inference.
 
-For hypothesis testing of a regression coefficient for X the assumptions are:
+For hypothesis testing of a regression coefficient for the predictor variable X  on an outcome variable Y the assumptions are:
 
-* The dependent variable Y has a linear relationship to the independent variable X.
-* Errors (residuals) are normally distributed.
-* Samples are independent.
-* Variances in each group are equal.
+* The dependent variable Y has a linear relationship with the independent variable X.
+* The errors (residuals) are normally distributed.
+* The observed samples are independent.
+* The variances in each group are equal.
 
-Let's revisit our R code to see how we can extract this information for our regression model. 
+Let's revisit our R code to see how we can extract the results of the hypothesis testing for our regression model. 
 
 ### Hypothesis Testing of Regression Parameters in R 
 
-We don't actually need to get R to do any further calculations to get the p-values for our statistical hypothesis testing. This is done when you execute `lm()`. By default though it does not print the output to console. We do need to use some additional commands to extract this information. This is largely achieved with the  `summary()` function. We could chain these commands together i.e. `summary(lm()))` or we could save the output of `lm()` to a variable and run it as two lines of code as shown below:
+We don't actually need to get R to do any further calculations to get the p-values for our statistical hypothesis testing. These are calculated when you execute `lm()`. By default though it does not print this output to console. We do need to use some additional commands to extract this information. This is largely achieved with the  `summary()` function. We could chain these commands together i.e. `summary(lm()))` or we could save the output of `lm()` to a variable (for example `model`) and run it as two lines of code as shown below:
 
 ```{r}
 model<-lm(weight ~ height, data = demoDat)
@@ -332,20 +330,20 @@ summary(model)
 
 ```
 
-We can see that the `summary()` function expands on the information printed to the console compared to just running `lm()`.
+We can see that the `summary()` function expands on the information printed to the console compared to just running the `lm()` function.
 
 From top to bottom, we have:
 
 * the model formula
-* a summary of the residuals (i.e errors)
-* a table of coefficients
-* model fit statistics. 
+* a statistical summary of the residuals (i.e. errors)
+* a table of regression coefficients
+* model fit statistics 
 
 
-We are probably most interested in the coefficients table which contains a summary of each estimated regression coefficient. The results for each coefficient are provided in a separate rows, with the intercept in the top row followed by 1 row for each explanatory variable and 4 columns. It is worth noting at this point that the intercept is also a regression coefficient which we can test. However, we almost never consider this result as 
+We are probably most interested in the coefficients table which contains a summary of each estimated regression coefficient. The results for each coefficient are provided on a separate rows, with the intercept in the top row followed by 1 row for each explanatory variable and 4 columns. It is worth noting at this point that the intercept is also a regression coefficient which we can test. However, we almost never pay much attention to this result as 
 
-1. it is virtually always significantly non-zero 
-2. it doesn't tell us anything about relationships between the variables  
+1. it is almost always significantly non-zero 
+2. it doesn't tell us anything about relationships between the variables, which is typically our main motivation for hypothesis testing in regression analysis  
 
 
 The columns in the coefficients table are as follows:
@@ -355,23 +353,21 @@ The columns in the coefficients table are as follows:
 | Estimate | estimated regression coefficient | 
 | Std. Error | standard error of the estimated regression coefficient |
 | t value | test statistic (the ratio of the previous two columns) | 
-| Pr(> t) | P-value comparing the t value to the Student's t distribution | 
+| Pr(> t) | p-value comparing the t value to the Student's t distribution | 
 
-We can also see from the coefficients table above the slope parameter has a p-value < 0.05. Therefore we can conclude that it is significantly non-zero and reject the null hypothesis in favour of the alternative hypothesis. There is a statistically significant relationship between height and weight in this dataset.
-
+We can see from the coefficients table above that the slope parameter for height has a p-value < 0.05. Therefore we can conclude that it is significantly non-zero and reject the null hypothesis in favour of the alternative hypothesis. There is a statistically significant association between height and weight in this dataset.
 
 We can visualise this estimated model, by generating a scatterplot of the observed data and adding the fitted regression line to the plot. This can be done simply by passing the output of the `lm` function into the `abline` function. 
 
 ```{r, fig.height= 5, fig.width=5, fig.pos="center"}
-par(mar = c(4,4,1,1))
+par(mar = c(4,4,1,1)) # adjust the margins around the plot
 plot(demoDat$height, demoDat$weight, pch = 16, xlab = "Height (cm)", ylab = "Weight (kg)")
 abline(model, col = "red")
 
 ```
 
 
-We can see the positively correlated relationship between height and weight. The fitted regression model appears to represent the data well but there is some noise around the fitted line. In other words the model is not perfect. Potentially there are other factors that could improve the prediction further.  
-
+We can see the positively correlated relationship between height and weight. The fitted regression model appears to represent the data well but there is some noise around the fitted line. In other words the model is not perfect. Potentially there are other factors or variables that could improve the prediction of weight further.  
 
 
 ### Hypothesis Testing of Regression Coefficients Exercise 
@@ -411,11 +407,11 @@ question("Which of these statements are true for the relationship between BMI an
 
 ### Checking the Assumptions of Linear Regression
 
-As we mentioned before, by making assumptions about the characteristics of our data we can do significance testing. It is prudent therefore, to check whether these assumptions hold true so that we can be confident in the conclusion we have deduced. However, this is far from common practice. There are a number of reasons why. 
+As we mentioned before, by making assumptions about the characteristics of our data we can do significance testing. It is prudent therefore, to check whether these assumptions hold true so that we can be confident in the conclusion we have made. However, this is far from common practice. There are a number of reasons why. 
 
 Firstly, the assumptions are to some degree subjective and assessing them is not an exact science. It can be hard to know what to look for if you don't have much experience in fitting regression models. The underlying mathematics of regression is robust to some deviation from these assumptions. So there is some tolerance around these we can allow. Common tools to assess properties like normality might not place the threshold for deviation in the same place as the statistical model needs. Often they are more conservative and therefore you might prematurely reject a valid result. 
 
-Secondly, (and perhaps most pertinent) it is not possible to check many of the assumptions without fitting the model first. Therefore, you run the risk that if you find a significant effect you get excited and forget to check the assumptions in favour of persuing a more exciting follow up question. However, as the assumptions are essential for deriving the formula to estimate and test the regression parameters, if they are violated we need to be cautious about accepting the results, especially if they are significant.
+Secondly, (and perhaps most pertinent) it is not possible to check many of the assumptions without fitting the model first. Therefore, you run the risk that if you find a significant effect you get excited and forget to check the assumptions in favour of investigating a more exciting follow up question. However, as the assumptions are essential for deriving the formula to estimate and test the regression parameters, if they are violated we need to be cautious about accepting the results, especially if they are significant.
 
 Functionality to do this is provided within R. We can easily generate 4 plots, where we can visually inspect some of the assumptions of linear regression by applying the `plot()` function to the output of an `lm()` call. We can see these plots for the height and weight examples from above.
 
@@ -430,7 +426,7 @@ Decisions on the validity of the results are then given by assessing these plots
 
 ##### Plot 1: Residuals vs Fitted
 
-Do the residuals show a non-linear pattern?  
+This plot shows for each observation the error (residual) in the fitted model against the prediction. When looking at this plot we need to ask do the residuals show a non-linear pattern? Ideally they should be random across the possible range of fitted values. Otherwise it suggests that the accuracy of the model is related to characteristics of the samples you are trying to predict (i.e. the model is more accurate for shorted individuals).
 
 **Good:**   
 
@@ -442,15 +438,15 @@ Do the residuals show a non-linear pattern?
 	
 ##### Plot 2: Normal Q-Q
 
-Are the residuals normally distributed?  
+Q-Q plot is an abreviation for quantile-quantile plot. It is used to compare the distribution of an obsevred variable against an expected distribution,in this case the normal distribution. Here we are asking are the residuals normally distributed? If the observed distribution in line with the expected distribution the points will follow the x=y diagonal line.  
 
 **Good:**  
 
-* the points follow the dotted diagonal line
+* the points follow the dotted diagonal line. Some deviation at the extremes (start and end) are to be expcted and tolerated.
 
 **Bad:**  
 
-* the points deviate from the dotted diagonal line.
+* the points deviate from the dotted diagonal line. Particularly concerning if this is non-symmetric or points in the middle of the distribution. 
 
 ##### Plot 3: Scale-Location
 
@@ -462,11 +458,11 @@ Are the residuals equally spread across the range of predictions?
 
 **Bad:**  
 
-* a non horizontal line and more/less points in one corner of the plot, may indicate heteroscedasticity.
+* a non horizontal line and more/less points in one corner of the plot, may indicate heteroscedasticity (i.e. where the variance of the predictor variable is associated with it's value)
 	
 ##### Plot 4: Residuals vs Leverage
 
-Are any samples overly influencing the fit?  
+We want our line of best fit to capture the relationship that best represents the full sample and isn't driven by one or two extreme samples. In this plot we look at the leverage, a statistical value of the influence of each sample on the overall results and we are asking if there are any individual samples that overly influencing the fit? This is more problematic if the sample with a higher leverage is at the extreme end of the distribution (i.e. a particularly high or low residual value).
 
 **Good:**   
 
@@ -478,7 +474,7 @@ Are any samples overly influencing the fit?
 
 As these require a subjective assessment of the plots, it can be difficult to decide whether the plot looks good or bad. This is particularly challenging where the data has only a small number of observations. We should also bear in mind that linear regression is fairly robust to the violation of many of the assumptions. Therefore, even if the plots don't look ideal, that does not automatically mean that the result is invalid. This is where statistics moves away from a fixed quantity and into a gray area of subjectivity. Experience is the only real aid here, the more regression models you fit and the more plots you look at enables you to gauge what is a major or minor deviation. 
 
-For contrast, let's fit another linear model where the assumptions might not hold true. Let's look at the relationship between weight and hours exercised per week (`exercise_hours`). When we asked the participants how much exercise they did each week they were effectively counting the number of hours, so this variable is a count variable. Count varibles are typically Poisson distributed and are limited to whole, positive numbers, so not a continuous variable and therefore potentially violating one of our assumptions.   
+For contrast, let's fit another linear model where the assumptions might not hold true. Let's look at the relationship between weight and hours exercised per week (`exercise_hours`). When we asked the participants how much exercise they did each week they were effectively counting the number of hours, so this variable is a count variable. Count variables are typically Poisson distributed and are limited to whole, positive numbers, so not strictly a continuous variable and therefore potentially violating one of our assumptions.   
 
 
 ```{r, echo = FALSE}
@@ -497,24 +493,26 @@ plot(lm(weight ~ exercise_hours, data  = demoDat))
 
 **Plot 1: Residuals vs Fitted** We can see vertical lines of dots which is a reflection of the fact the observed X variable only contains whole numbers. On the right hand side the points appear reasonably random in the space, but perhaps some bias to the left hand side. 
 
-**Plot 2: Normal QQ** Points largely on the diagonal line int he centre of the distribution but some deviation at both extremes.
+**Plot 2: Normal QQ** Points largely on the diagonal line in the centre of the distribution but some deviation at both extremes.
 
-**Plot 3: Scale-Location** We see the vertical lines again and more points of the right hand side.Possibly some wierd empty spaces, where points are absent on the left hand side. 
+**Plot 3: Scale-Location** We see the vertical lines again and more points of the right hand side. Possibly some weird empty spaces, where points are absent on the left hand side. 
 
 **Plot 4: Residuals vs Leverage** There are some samples with extreme values (on the far right) not quite in line the rest of the points but not outside the accepted region.  
 
-So in conclusion we can see less desirable behaviour of our observed data as we try to force a discrete variable into a methodology for a continuous variable . 
+So in conclusion we can see less desirable behaviour of our observed data as we try to force a discrete variable into a methodology for a continuous variable.  
 
 
 
 ### Inspecting the Assumptions Exercise 
 
-*Let's have a go at creating and interpretting some diagnostic plots.*
+*Let's have a go at creating and interpreting some diagnostic plots.*
 
 Write the R code required to determine if a regression model is an appropriate tool for assessing the relationship between:
 
 1. age and weight
 2. bmi and average number of alcohol units drunk per week (`alcohol_units`)
+
+Use the provided plots to assess the assumptions of linear regression.
 
 ```{r ols-plots, exercise=TRUE}
 
