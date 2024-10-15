@@ -1,10 +1,10 @@
-Package: cfrr-r-tutorials
+Package: cfrrRtutorials
 Title: What the Package Does (One Line, Title Case)
 Version: 1.0.0.0
 Authors@R: 
     person("Eilis", "Hannon", , "e.j.hannon@exeter.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-6840-072X"))
-Description: This R package contains tutorials developed for workshops delivered as part of the Coding for Reproducble Research Training Programme at the Univeristy of Exeter.
+Description: Tutorials developed for workshops delivered as part of the Coding for Reproducble Research Training Programme at the Univeristy of Exeter.
 License: use_cc0_license()
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
