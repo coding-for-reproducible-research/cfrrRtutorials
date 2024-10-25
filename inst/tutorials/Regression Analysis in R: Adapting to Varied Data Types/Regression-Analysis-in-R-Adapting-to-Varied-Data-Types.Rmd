@@ -688,12 +688,19 @@ summary(model.log)$coefficients
 Using our estimated regression coefficients we can write our fitted regression model as
 
 ```{r, echo = FALSE}
-logEq<- paste0("$\frac{\text{ln(p(TypeIIDiabetes))}}{(1-p(TypeIIDiabetes))}", signif(coef(model.log)[1],2), " + ", signif(coef(model.log)[2],2), " * ExerciseHours + ", 
-        signif(coef(model.log)[3],2), " * AlcoholUnits$")
-
+pretty_number <- function(number, significant_figures = 2, show_sign = TRUE) {
+  polarity <- sign(number)
+  polarity <- ifelse(polarity == 1, "+", "-")
+  output <- ifelse(show_sign, polarity, "")
+  output <- paste0(output, signif(abs(number), significant_figures))
+  return(output)
+}
+coef_one <- pretty_number(coef(model.log)[1], show_sign = FALSE)
+coef_two <- pretty_number(coef(model.log)[2])
+coef_three <- pretty_number(coef(model.log)[3])
 ```
 
-`r logEq`.
+$$ln\bigg(\frac{p(TypeII\;Diabetes)}{1-p(TypeII\;Diabetes)}\bigg) = `r coef_one` `r coef_two` * ExerciseHours `r coef_three` * AlcoholUnits$$.
 
 Let's say we have a new observation we want to make a prediction for, we know that they exercise for on average 4 hours a week and consume 10 units of alcohol per week. We can input these values into our equation to estimate the log odds of the this individual having type 2 diabetes. 
 
