@@ -716,23 +716,23 @@ quiz(caption = "Have ago at these questions to test your knowledge.",
            answer("The value of the regression coefficient is less than 0."),
            answer("The value of the regression coefficient is not equal to 0.")),  
   
-question("For the regression model coded in R as $test_{score} ~ age$, how many regression coefficients are there?",
+question("For the regression model coded in R as $test_{score} \\sim age$, how many regression coefficients are there?",
            answer("1"),
            answer("2", correct = TRUE),
            answer("3"),
            answer("4")),
 
-question("For the regression model  coded in R as $test_{score} ~ 1$, how many regression coefficients are there?",
+question("For the regression model  coded in R as $test_{score} \\sim 1$, how many regression coefficients are there?",
            answer("1", correct = TRUE),
            answer("2"),
            answer("3"),
            answer("4")),
 
-question("For the full model $y ~ age + education_years$, which of these are valid null models? Select all that apply",
-           answer("$y ~ 1", correct = TRUE),
-           answer("$y ~ age + sex"),
-           answer("$y ~ age + status"),
-           answer("$y ~ education_years + age"))
+question("For the full model $y \\sim age + education_years$, which of these are valid null models? Select all that apply",
+           answer("$y \\sim 1$", correct = TRUE),
+           answer("$y \\sim age + sex$"),
+           answer("$y \\sim age + status$"),
+           answer("$y \\sim education_years + age$"))
 )
 ```
 
