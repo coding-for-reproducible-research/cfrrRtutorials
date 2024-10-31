@@ -251,14 +251,14 @@ First, let's consider the simplest type of categorical variable to model, one wi
 
 For example for the variable sex, we could represent females with 0 and males with 1 and the variable therefore indicates who is male. Note that in R if you include a factor variable in your regression model which has text labels to indicate the `levels`, it will automatically do this numerical recoding for you without you needing to know about it. The default behaviour is for the first category alphabetically to be assigned 0 and the second category to be assigned 1. This is important to remember for interpretation later.
 
-We the define our regression model as we did for continuous variables.
+We then define our regression model as we did for continuous variables.
 For example to test for a relationship between sex and weight we can use the following code:
 
 ```{r, eval = FALSE}
 lm(weight ~ sex, data = demoDat)
 ```
 
-As before R will automatically add the relevant regression parameters so this model can be written mathematically as:
+As before, R will automatically add the relevant regression parameters so this model can be written mathematically as:
 
 $$weight = \beta_0 + \beta_1 sex$$
 We have our intercept regression coefficient, our regression "slope" coefficient for the sex variable. In this equation the variable sex takes either the value 0 or the value 1 for each observation depending if it is male or female. We also use this coding strategy to make predictions from this equation. Let's demonstrate this - for males and females we can derive an equation that will represent their prediction. 
@@ -305,7 +305,7 @@ Recall here that we have used the t-distribution to test for a significant relat
 t.test(weight ~ sex, data = demoDat, var.equal = TRUE)
 ```
 
-That is because these are mathematically equivalent. If your regression model has a continuous outcome variable and a single binary predictor variable then you have implemented a t-test. It is worth bearing in mind that regression is a much more flexible framework than a t-test. It can handle the inclusion of more than one predictor variable. So if you think a t-test is what you need but you also want to be to control for other confounders, regression will allow you to do this. 
+That is because these are mathematically equivalent. If your regression model has a continuous outcome variable and a single binary predictor variable then you have implemented a t-test. It is worth bearing in mind that regression is a much more flexible framework than a t-test. It can handle the inclusion of more than one predictor variable. So if you think a t-test is what you need but you also want to control for other confounders, regression will allow you to do this. 
 
 #### Categorical Variables with > 2 Groups
 
@@ -491,7 +491,7 @@ question("Is there a significant relationship between ethnicity and bmi?",
 
 ## Logistic Regression
 
-So far all the examples have assumed we have a continuous outcome we want to predict. But this is unlikely to be the case all of the time. What if we want to predict a binary variable, such as case control status or another type of indicator variable. We can't use the traditional linear regression techniques we have discussed so far because our outcome is now discrete (coded 0 or 1) but our linear combination of predictor variables can take value. We need to use a function to translate this continuous value into our 0,1 discrete code. 
+So far all the examples have assumed we have a continuous outcome we want to predict. But this is unlikely to be the case all of the time. What if we want to predict a binary variable, such as case control status or another type of indicator variable. We can't use the traditional linear regression techniques we have discussed so far because our outcome is now discrete (coded 0 or 1) but our linear combination of predictor variables can take any value. We need to use a function to translate this continuous value into our 0,1 discrete code. 
 
 To do this we use the logistic function, and hence this class of regression models is called logistic regression. 
 
@@ -513,7 +513,7 @@ abline(h = 0)
 ```
 
 
-While the combination of X variables can take any value from - infinity to infinity, the Y value is constrained to between 0 and 1. It is still a continuous function, so we haven't quite got to our desired outcome of a binary 0,1 variable. With Y now constrained to fall between 0 and 1 we can interpret it as a probability, the probability of being a case. To transform this to taken either the value 0 or the value 1, we apply a threshold of 0.5. If the predicted Y > 0.5 then Y is that observation is classed as a case (i.e. Y = 1) whereas if predicted Y < 0.5, then that observation is classed as a control (i.e. Y = 0). In an ideal world we want our predictions to be definitive. So as well as being constrained to giving a value between 0 and 1, the transformation also has the desirable property of spending most of it's time at the extremes (i.e. 0 or 1) and not much time in the middle (i.e. around 0.5).
+While the combination of X variables can take any value from - infinity to infinity, the Y value is constrained to between 0 and 1. It is still a continuous function, so we haven't quite got to our desired outcome of a binary 0,1 variable. With Y now constrained to fall between 0 and 1 we can interpret it as a probability, the probability of being a case. To transform this into either a value 0 or 1, we apply a threshold of 0.5. If the predicted Y > 0.5 then Y is that observation is classed as a case (i.e. Y = 1) whereas if predicted Y < 0.5, then that observation is classed as a control (i.e. Y = 0). In an ideal world we want our predictions to be definitive. So as well as being constrained to giving a value between 0 and 1, the transformation also has the desirable property of spending most of it's time at the extremes (i.e. 0 or 1) and not much time in the middle (i.e. around 0.5).
 
 After applying the link function, technically, logistic regression is estimating the log odds of being a case. So our equation becomes 
 
@@ -521,7 +521,7 @@ $$ln(odds) = ln(\frac{p}{(1-p)}) = \beta_0 + \beta_1*x$$
 
 We are no longer in the class of linear regression, we are in a more general class of generalised linear models. These permit a more varied number of regression models with different types of outcomes.They use a link function to transform from the unbounded prediction on the right hand side to the properties of the outcome variable on the left hand side. For logistic regression the link function is the logistic function. This means we also need a new R function, `glm()` to fit them. 
 
-Let's look at an example we are going to predict Type II diabetes status from bmi.
+Let's look at an example where we are going to predict Type II diabetes status from bmi.
 
 ```{r}
 model.log <- glm(t2diabetes ~ bmi, data = demoDat, family = "binomial")
@@ -553,7 +553,7 @@ exp(coef(model.log))
 
 We can see that the odds ratios is `r signif(exp(coef(model.log))["bmi"], 3)` which can be reported as for a 1 unit increase of BMI an individual is `r signif(exp(coef(model.log))["bmi"], 3)` times more likely to develop Type 2 Diabetes. This effect is not very big!
 
-Significance testing is conceptually the same as for linear regression, whereby each regression coefficient (i.e. log odds ratio) is tested to see if it is non-zero. It differs though how it is calculated. As we are no longer able to derive an exact solution, we have to use an iterative method to find the best estimates. This means you sometimes might get warnings that your model failed to converge. This means that the algorithm was not able to settle on an appropriate solution for the best regression coefficients and the result should be treated with caution. Typically, this is due to not enough data or trying to fit too many predictor variables simultaneously or a poor choice of model between X and Y. 
+Significance testing is conceptually the same as for linear regression, whereby each regression coefficient (i.e. log odds ratio) is tested to see if it is non-zero. It differs though in how it is calculated. As we are no longer able to derive an exact solution, we have to use an iterative method to find the best estimates. This means you sometimes might get warnings that your model failed to converge. This means that the algorithm was not able to settle on an appropriate solution for the best regression coefficients and the result should be treated with caution. Typically, this is due to not enough data or trying to fit too many predictor variables simultaneously or a poor choice of model between X and Y. 
 
 We can get the results of hypothesis testing for the regression coefficients in the same way as we did for linear regression:
 
@@ -669,7 +669,7 @@ question("Does socioeconomic status have a significant effect on the odds of Typ
 )
 ```
 
-You may have noticed in the last example above that while the ANOVA for the ethnicity variable was significant neither of the two dummy variables were significantly associated at P < 0.05. The `ethnicityEuropean` showed a trend for significance with P~0.05. This happens sometimes because when you use an ANOVA to test for the joint effect of both dummy variables, you are using a 2 degree of freedom test (see third column in the ANOVA output), while in the tests for the individual coefficients you are using a 1 degree of freedom test. Mathematically the threshold for a two degree of freedom test is slightly lower to be significant. You could think of this as rather than needing a really strong effect in one variable, a small effect, but in both variables would be meaningful. In reality these results are not contradicting each other, its just a chance thing related to the fact that we have used a hard threshold to determine significance. Where you only just have enough statistical power to detect an effect, it is chance whether it falls just above the threshold or just below. 
+You may have noticed in the last example above that while the ANOVA for the ethnicity variable was significant neither of the two dummy variables were significantly associated at P < 0.05. The `ethnicityEuropean` showed a trend for significance with P≈0.05. This happens sometimes because when you use an ANOVA to test for the joint effect of both dummy variables, you are using a 2 degree of freedom test (see third column in the ANOVA output), while in the tests for the individual coefficients you are using a 1 degree of freedom test. Mathematically the threshold for a two degree of freedom test is slightly lower to be significant. You could think of this as rather than needing a really strong effect in one variable, a small effect, but in both variables would be meaningful. In reality these results are not contradicting each other, its just a chance thing related to the fact that we have used a hard threshold to determine significance. Where you only just have enough statistical power to detect an effect, it is chance whether it falls just above the threshold or just below. 
 
 #### Predictions with the Logistic Regression Model
 
@@ -693,7 +693,7 @@ logEq<- paste0("$\frac{\text{ln(p(TypeIIDiabetes))}}{(1-p(TypeIIDiabetes))}", si
 
 `r logEq`.
 
-Let's say we have a new observation we want to make a prediction for, we know that they exercise for on average 4 hours a week and consume 10 units of alcohol per week. We can input these values into our equation to estimate the log odds of the this individual having type 2 diabetes. 
+Let's say we have a new observation we want to make a prediction for, we know that they exercise for on average 4 hours a week and consume 10 units of alcohol per week. We can input these values into our equation to estimate the log odds of this individual having type 2 diabetes. 
 
 ```{r}
 ## calculate log odds for individual
@@ -718,7 +718,7 @@ Next, we convert from odds to probability of being a case.
 (prob<-odds/(odds+1))
 ```
 
-The final step to convert this to a binary case/control status is to apply the threshold 0.5: if the probability is > 0.5 then they are classed as a case and if the probability is < 0.5 they are classed as a control. In this example the probability is just above 0.5 and therefore they would be predicted as a case. However, the estimated probability is not exactly 0, which gives a sense of how imprecise/insensitive our prediction based on this model might be. 
+The final step to convert this to a binary case/control status is to apply the threshold 0.5: if the probability is > 0.5, then they are classed as a case and if the probability is < 0.5, they are classed as a control. In this example the probability is just above 0.5 and therefore they would be predicted as a case. However, the estimated probability is not exactly 0, which gives a sense of how imprecise/insensitive our prediction based on this model might be. 
 
 
 
@@ -804,7 +804,7 @@ question("For the full model $y ~ age + sex + education_years$, which of this ar
 
 In this session we have covered a number of concepts:
 
-* An overview of what is regression
+* An overview of what regression is
 * How to represent a line as an equation
 * What the regression coefficients represent
 
@@ -825,6 +825,6 @@ As a consequence we have drawn out the link between regression and
 * t-tests
 * ANOVA
 
-In summary regression is a modular framework that can be used to test a endless range of analytical questions.
+In summary, regression is a modular framework that can be used to test a endless range of analytical questions.
 
 ## Extras
