@@ -783,7 +783,7 @@ Mixed Effects Regression with R:
 
 ## Extras
 
-#### Extracting summary statistics from a model fit in R
+#### Extracting Summary Statistics from a Model Fit in R
 
 If you are new to R, here we will just run through some details on the type of objects these data are stored in and how to access specific elements. This can be helpful for writing automated analysis scripts. Due to the need to contain different types of data in different formats and structures, the output of the regression model fit is stored in a bespoke object, with slots for the different parts of the output. These slots are named and can be assessed using the `$`. For example to extract just the table of estimated regression coefficients, which are named `coefficients` we use the following command: 
 

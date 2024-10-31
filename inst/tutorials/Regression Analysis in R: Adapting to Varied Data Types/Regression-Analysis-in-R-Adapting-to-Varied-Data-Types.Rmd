@@ -78,7 +78,7 @@ You can navigate through the section using the menu on the side. Please note tha
 
 ## Multiple Linear Regression 
 
-### Expanding the regression framework
+### Expanding the Regression Framework
 
 So far we have considered a single type of regression analysis with one continuous predictor variable and one continuous outcome variable and fitting a straight line between these. This has enabled us to get to grips with the core concepts but regression can do so much more than this. It is an incredibly flexible framework that can handle
 
@@ -722,7 +722,7 @@ The final step to convert this to a binary case/control status is to apply the t
 
 
 
-#### Logistic regression assumptions
+#### Logistic Regression Assumptions
 
 
 The assumptions for logistic regression are:
