@@ -77,7 +77,7 @@ The complete series includes:
 
 ### Introduction to Coding For Reproducible Research
 
-This workshop is offered as part of the [Coding For Reproducible Research Intiative](https://uniexeterrse.github.io/workshop-homepage/). Our ambition is to offer a recurring annual series of workshops open to all staff and students, with opportunities for novices through to more experienced users, to expand their skillsets and position them to confidently perform the informatics research projects in an efficient and reproducible way. A key objective is that the framework we put in place ensures that the workshops delivered are fit for purpose, of a consistent high standard, that delivery is sustainable in the longer term, minimises the workload burden on those who facilitate them and can adapt and expand as new training needs are identified.
+This workshop is offered as part of the [Coding For Reproducible Research Intiative](https://uniexeterrse.github.io/workshop-homepage/). Our ambition is to offer a recurring annual series of workshops open to all staff and students, with opportunities for novices through to more experienced users, to expand their skill sets and position them to confidently perform the informatics research projects in an efficient and reproducible way. A key objective is that the framework we put in place ensures that the workshops delivered are fit for purpose, of a consistent high standard, that delivery is sustainable in the longer term, minimises the workload burden on those who facilitate them and can adapt and expand as new training needs are identified.
 
 Championed by and in partnership with
 
@@ -130,7 +130,7 @@ Standard linear regression models make the assumption that the data used to fit 
 
 If we force a standard regression model that makes this assumption onto these type of data, we run the risk of our results being biased and the wrong conclusion being made. One work around is to filter our data so that it only contains independent samples, but this seems a bit of waste of valuable data that contains additional information that could improve the fit of our model. Instead it would be preferable to use a methodology that can appropriately model the underlying structure.
 
-Multi-level models are designed to deal with nested, grouped, clustered or hierarchical data. These are all synonyms for the same concept that the observations are not independent and there is some underlying structure to the data. This structure may be something you are interested in or just something you want to control for. In genral multi-level models can be considered a more complex regression framework to model:
+Multi-level models are designed to deal with nested, grouped, clustered or hierarchical data. These are all synonyms for the same concept that the observations are not independent and there is some underlying structure to the data. This structure may be something you are interested in or just something you want to control for. In general multi-level models can be considered a more complex regression framework to model:
 
 -   structure within data
     -   e.g. patients recruited by different consultants from different clinics across the UK
@@ -177,7 +177,7 @@ From this formula we can see that each group $j$ has it's own intercept value ($
 
 ### What are fixed and random effects?
 
-Typically when defining or describing to mixed effects models, we consider them to include both fixed and random effects, where variables are assigned to be modeled as either one or the other. Fixed effects assume that the parameter estimates apply to all our observations (i.e. do not depend on j) and we estimate the value of the regression parameters for each variable. The interpretation of these estimated coefficients is as it was in single level regression models.
+Typically when defining or describing to mixed effects models, we consider them to include both fixed and random effects, where variables are assigned to be modelled as either one or the other. Fixed effects assume that the parameter estimates apply to all our observations (i.e. do not depend on j) and we estimate the value of the regression parameters for each variable. The interpretation of these estimated coefficients is as it was in single level regression models.
 
 Instead for variables classified as having random effects, we are assuming that each group within that variable has it's own effect and that across all the groups the distribution of their effects is normal. For random effects we are interested in estimating the variance of the distribution from which the group effects come. Conceptually random effects must be categorical variables.
 
@@ -191,8 +191,8 @@ For a mixed effects model with one fixed effect and one random effect we have fo
 ```{r quiz1, echo=FALSE}
 quiz(caption = "Questions on mixed effects models",
 question("What is the primary advantage of using mixed effects models compared to traditional linear regression?",
-  answer("Ability to handle non-linear relationships", message = "This is true of both mixed effects and traditional linear regrssion."),
-  answer("Ability to consider multiple variables at the same type", message = "This is true of both mixed effects and traditional linear regrssion."),
+  answer("Ability to handle non-linear relationships", message = "This is true of both mixed effects and traditional linear regression."),
+  answer("Ability to consider multiple variables at the same type", message = "This is true of both mixed effects and traditional linear regression."),
   answer("Ability to handle data were observations are related to each other", correct = TRUE),
   answer("Faster computation time", message = "Arguably it's probably slower."),
   allow_retry = TRUE
@@ -293,7 +293,7 @@ model.rand.int<-lmer(CognitionA ~ VisitNum  + (1 | ID), data = cogDat)
 
 ```
 
-Fixed effects are included using the standard formula notation as used in linear regression models andthe function `lm()`, with the outcome variable on the left and the predictor on the right separated by a `~`. The `1|` notation is how we specify the inclusion of random intercepts. Unlike standard linear regression, there are choices to be made as to what algorithm to use to derive the parameter estimates from the data you have. This decision is more important if you have a small sample size, in larger sample sizes it shouldn't matter too much. The default behaviour in R is to fit a mixed effects regression model using restricted maximum likelihood (REML), which will given unbiased estimates. We can force R to use maximum likelihood by adding the argument `REML = FALSE`.
+Fixed effects are included using the standard formula notation as used in linear regression models and the function `lm()`, with the outcome variable on the left and the predictor on the right separated by a `~`. The `1|` notation is how we specify the inclusion of random intercepts. Unlike standard linear regression, there are choices to be made as to what algorithm to use to derive the parameter estimates from the data you have. This decision is more important if you have a small sample size, in larger sample sizes it shouldn't matter too much. The default behaviour in R is to fit a mixed effects regression model using restricted maximum likelihood (REML), which will given unbiased estimates. We can force R to use maximum likelihood by adding the argument `REML = FALSE`.
 
 ### Significance testing in mixed effects regression models
 
@@ -333,7 +333,7 @@ summary(model.rand.int)
 
 ```
 
-We can see from the coefficients table, that R has used the t-distribution to calculate p-values for the fixed effects. By default `lmerTest` uses the Satterwaite approximation to calculate the degrees of freedom for this test (stated at the top of the output, alongside the method for estimating the coefficients). In the results we can see that the `VisitNum` variable is significantly positively associated with the performance in cognitive test A (p = `r signif(summary(model.rand.int)$coefficients["VisitNum",5],2)`). We can interpret the parameter for this variable as we would for a standard regression model, where the value represents the change in the outcome for one unit increase in the predictor variable, i.e. the change in score for cognitive test A for each extra visit. Specifically, participants had a mean increase in score of `r signif(summary(model.rand.int)$coefficients["VisitNum",1],2)` per visit.
+We can see from the coefficients table, that R has used the t-distribution to calculate p-values for the fixed effects. By default `lmerTest` uses the Satterthwaite approximation to calculate the degrees of freedom for this test (stated at the top of the output, alongside the method for estimating the coefficients). In the results we can see that the `VisitNum` variable is significantly positively associated with the performance in cognitive test A (p = `r signif(summary(model.rand.int)$coefficients["VisitNum",5],2)`). We can interpret the parameter for this variable as we would for a standard regression model, where the value represents the change in the outcome for one unit increase in the predictor variable, i.e. the change in score for cognitive test A for each extra visit. Specifically, participants had a mean increase in score of `r signif(summary(model.rand.int)$coefficients["VisitNum",1],2)` per visit.
 
 We can also extract information about the variables we fitted as random effects. As described above for these, we are estimating parameters of their distribution and specifically the variance of this distribution. For this model, the variance of the individual intercepts is `r signif(as.data.frame(VarCorr(model.rand.int))[1,"vcov"], 3)`. These are hard to attribute much meaning to, but they represent the width of the distribution that the individual effects come from. A larger number implies a wider distribution and consequently more variation in the individual effects.
 
@@ -351,7 +351,7 @@ anova(model.rand.int, model.lm)
 
 ```
 
-You will see in the first line of the output, R first refits the random intercepts model with maximum likelihood so that we can perform the likelihood ratio test. It then proceeds to summarise the statistics of the test and provides the p-value from a $\chi^2_{1}$ distribution, which is significant (P = `r signif(anova(model.rand.int, model.lm)[2,8],2)`). Therefore we can conclude that the addition of a random intercept for individual is an important component of the model. Note if we want a more specific p values than 2.2e-16, we can get that by using the fact that the anova output is a matrix and "slicing" the specific element.
+You will see in the first line of the output, R first refits the random intercepts model with maximum likelihood so that we can perform the likelihood ratio test. It then proceeds to summarise the statistics of the test and provides the p-value from a $\chi^2_{1}$ distribution, which is significant (P = `r signif(anova(model.rand.int, model.lm)[2,8],2)`). Therefore we can conclude that the addition of a random intercept for individual is an important component of the model. Note if we want a more specific p values than 2.2e-16, we can get that by using the fact that the ANOVA output is a matrix and "slicing" the specific element.
 
 ```{r}
 anova(model.rand.int, model.lm)[2,8]
@@ -365,7 +365,7 @@ Note that there is also an inbuilt function to perform a test for significant ra
 ranova(model.rand.int)
 ```
 
-Looking at the output, we can see two rows, one for each model and the the number of degrees of freedom for the two models is right. If we just look at the p-value it is the same as when we manually coded the anova therefore we might think that we have performed the same analysis. But on closer inspection we can see the log likelihood values and therefore the test statistic are subtly different. This method is in fact using the likelihood statistics from the model fitted using REML, rather than maximum likelihood which is statistically incorrect. We can confirm this by extracting the log likelihood from our lmer model object (which we fitted using REML rather than ML), rather than refitting using maximum likelihood.
+Looking at the output, we can see two rows, one for each model and the number of degrees of freedom for the two models is right. If we just look at the p-value it is the same as when we manually coded the ANOVA therefore we might think that we have performed the same analysis. But on closer inspection we can see the log likelihood values and therefore the test statistic are subtly different. This method is in fact using the likelihood statistics from the model fitted using REML, rather than maximum likelihood which is statistically incorrect. We can confirm this by extracting the log likelihood from our lmer model object (which we fitted using REML rather than ML), rather than refitting using maximum likelihood.
 
 ```{r}
 ## log likelihood of linear model
@@ -490,7 +490,7 @@ x.sample <- as.matrix(c(0:9))
 
 # predict outcome using individual level coefficients
 y.ind <- ind.effects[,1]+ t(x.sample %*% t(as.matrix(ind.effects[,2])))
-# predict outcome using overal mean effect coefficients
+# predict outcome using overall mean effect coefficients
 y.mean <- mean.effects[1] + x.sample * mean.effects[2]
 
 y_lim <-range(y.ind)
@@ -526,7 +526,7 @@ plot(fitted(model.rand.int),resid(model.rand.int,type="pearson"),col="blue", xla
 abline(h=0,lwd=2)
 ```
 
-Secondly, we will consider the distribution of the residuals. Similar to linear regression, the residuals are assumed to be normally distributed with constant standard deviation. Therefore we can use a QQ plot to assess this (as well as look at the values provided in the summary of the model fit which should be symmetric and have a median \~ 0). With a qq plot (or quantile-quantile plot), we are looking for the points to follow the diagonal line, any deviation indicates that the data are not normally distributed. In this example it looks pretty good.
+Secondly, we will consider the distribution of the residuals. Similar to linear regression, the residuals are assumed to be normally distributed with constant standard deviation. Therefore we can use a QQ plot to assess this (as well as look at the values provided in the summary of the model fit which should be symmetric and have a median \~ 0). With a QQ plot (or quantile-quantile plot), we are looking for the points to follow the diagonal line, any deviation indicates that the data are not normally distributed. In this example it looks pretty good.
 
 ```{r, echo = TRUE, fig.height = 6}
 # normality of the residuals
@@ -535,7 +535,7 @@ qqline(resid(model.rand.int))
 
 ```
 
-Thirdly, an assumption specific to mixed effects models is that the random effects are also normally distributed. Again we can use a qq plot to assess this and it looks good.
+Thirdly, an assumption specific to mixed effects models is that the random effects are also normally distributed. Again we can use a QQ plot to assess this and it looks good.
 
 ```{r, echo = TRUE, fig.height = 6}
 # normality of the random intercept estimates
@@ -650,7 +650,7 @@ lapply(coef(model.rand.slope), head)
 
 ```
 
-Recall that the individual level intercepts are calculated as the overall mean intercept estimate (`r coef(summary(model.rand.slope))["(Intercept)","Estimate"]`) added to the estimated individual specific effects. The individual level slope coefficients are caluclated int he same way as the overall mean slope estimate (`r coef(summary(model.rand.slope))["VisitNum","Estimate"]`) added to the estimated individual slope effect effects. From this output we can make individual level predictions for the individuals in our observed data, which doesn't have much meaning for individuals not in our study. We can use the overall mean effect from the fixed effect terms to make predictions for individuals not in our sample.
+Recall that the individual level intercepts are calculated as the overall mean intercept estimate (`r coef(summary(model.rand.slope))["(Intercept)","Estimate"]`) added to the estimated individual specific effects. The individual level slope coefficients are calculated in the same way as the overall mean slope estimate (`r coef(summary(model.rand.slope))["VisitNum","Estimate"]`) added to the estimated individual slope effect effects. From this output we can make individual level predictions for the individuals in our observed data, which doesn't have much meaning for individuals not in our study. We can use the overall mean effect from the fixed effect terms to make predictions for individuals not in our sample.
 
 With these coefficients we can visualise the results
 
@@ -665,7 +665,7 @@ x.sample <- as.matrix(c(0:9))
 
 # predict outcome using individual level coefficients
 y.ind <- ind.effects[,1]+ t(x.sample %*% t(as.matrix(ind.effects[,2])))
-# predict outcome using overal mean effect coefficients
+# predict outcome using overall mean effect coefficients
 y.mean <- mean.effects[1] + x.sample * mean.effects[2]
 
 y_lim <-range(y.ind)
@@ -677,7 +677,7 @@ lines(x.sample, y.mean, ylim = y_lim, xlab = "Visit Number", ylab = "Cognitive S
 
 ```
 
-In this plot each dashed grey line represents an individual, while the black solid line represents the overall mean effect. What we can see is that each line starts at a different height on the y axis curtesy of the individual specific intercepts. As we saw from the coefficients, each individual has a different slope coefficient, so they are no longer parallel, howevere, that is not obvious to the human eye in this picture. In fact they are only very subtly different, and our significance testing informed us that there was at worst very little variance across individuals. So it is not surprising that we can't see how this manifests in the data. The black line tells us about the average individual, and is what we would use to make predictions about an individual outside of this cohort and describe the effect.
+In this plot each dashed grey line represents an individual, while the black solid line represents the overall mean effect. What we can see is that each line starts at a different height on the y axis courtesy of the individual specific intercepts. As we saw from the coefficients, each individual has a different slope coefficient, so they are no longer parallel, however, that is not obvious to the human eye in this picture. In fact they are only very subtly different, and our significance testing informed us that there was at worst very little variance across individuals. So it is not surprising that we can't see how this manifests in the data. The black line tells us about the average individual, and is what we would use to make predictions about an individual outside of this cohort and describe the effect.
 
 ### Assumptions for random slopes model
 
@@ -732,7 +732,7 @@ Once we start incorporating random slopes the interpretation of some predictor v
 
 ### Fixed effects vs random effects
 
-When you have a categorical variable sometimes it can be hard to decide if it should be modeled as a fixed or random effect? This is arguably a subjective decision at times but a few things to consider are:
+When you have a categorical variable sometimes it can be hard to decide if it should be modelled as a fixed or random effect? This is arguably a subjective decision at times but a few things to consider are:
 
 -   How many groups?
     -   Lots of groups would add lots of variables, so maybe more efficient to estimate variance across effects
@@ -813,7 +813,7 @@ So the odds of having low mental well being relative to high mental well being d
 
 *Let's practise fitting more complex mixed effects models*
 
-Write the R code required to test using a mixed effects regression model the following. For eachmodel include a random intercept for individual.
+Write the R code required to test using a mixed effects regression model the following. For each model include a random intercept for individual.
 
 1.  Is cognitive performance measured by any of the three tests influenced by smoking or years of education?
 
@@ -915,7 +915,7 @@ question("Which cognitive tests are associated with increasing mental well being
   answer("Cognition C"),
   answer("None"),
   allow_retry = TRUE), 
-question("What is the intepretation of the coefficient for each cognition test?",
+question("What is the interpretation of the coefficient for each cognition test?",
   answer("It represents the change in cognitive score needed to go from low mental well being to high mental well being."),  
   answer("It represents the change in cognitive score needed to go from high mental well being to low mental well being."),
   answer("It represents the log odds ratio of change in mental wellbeing from low to high per one point on the cognitive test."),
