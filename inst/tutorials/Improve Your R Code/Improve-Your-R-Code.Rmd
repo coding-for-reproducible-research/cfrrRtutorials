@@ -1,0 +1,899 @@
+---
+title: "Improve Your R Code"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, echo = FALSE}
+suppressPackageStartupMessages({
+  suppressMessages({
+    library(learnr)
+    library(microbenchmark)
+    library(profvis)
+    library(Rcpp)
+    library(parallel)
+    library(parallelly)
+    library(dplyr)
+    library(data.table)
+  })
+})
+
+# Note, after making changes you must call devtools::install("cfrrRtutorials"),
+# then run the appropriate tutorial to actually see the implemented changes
+# using learnr::run_tutorial()
+```
+
+## Overview
+Welcome to Improve Your R Code! R is primarily known as a language and environment for statistical computing and graphics. However, the flexibility and accessibility of R has led to its popularity across a diverse range of disciplines including biosciences, medicine and, of course, statistics. This workshop aims to extend your existing knowledge of R, enabling you to improve the **style** and the **speed** of your R code. The material for this workshop was created by Conor Crilly.
+
+### Course Objectives
+
+By the end of the session you will:
+
+-   Be able to write clean, readable, and maintainable R code following the tidyverse style guide.
+-   Be able to accurately measure the speed of your code using `microbenchmark`.
+-   Be comfortable with built-in R functions and packages (e.g. `parallel`, `data.table`, `Rcpp`) for improving execution speed.
+    
+
+### Introduction to Coding For Reproducible Research
+
+This workshop is offered as part of the [Coding For Reproducible Research Intiative](https://uniexeterrse.github.io/workshop-homepage/). Our ambition is to offer a recurring annual series of workshops open to all staff and students, with opportunities for novices through to more experienced users, to expand their skillsets and position them to confidently perform the informatics research projects in an efficient and reproducible way. A key objective is that the framework we put in place ensures that the workshops delivered are fit for purpose, of a consistent high standard, that delivery is sustainable in the longer term, minimises the workload burden on those who facilitate them and can adapt and expand as new training needs are identified.
+
+Championed by and in partnership with
+
+-   Research Software Engineering group
+-   Institute of Data Science and Artificial Intelligence (IDSAI)
+-   Researcher Development (Doctoral College and ECRs)
+-   Reproducibility Network Institutional Leadership team
+-   Exeter Health Analytics Research Network
+
+This workshop, and the others in the series, were put together by a series of working groups formed by researchers from across the University supported by Exeter's Research Software Engineering Group. The programme and workshops are under constant evolution. We appreciate your patience as we develop and test these materials and are grateful for your feedback which is a core component of this process. We also need to maintain accurate records of how many participants we have reached, so ask you to mark your attendance on the collaborative document.
+
+### Workshop format
+
+Today's workshop is led by Conor Crilly and supported by Michelle Ledbetter and Craig Willis. We are all here because we are passionate about sharing our knowledge and supporting the development of our colleagues. For most of us, this is not a requirement of our current position and we are doing this at the margins of our time.
+
+This workshop contains both live demonstrations of R code and exercises for you to complete.
+
+Our aim is to be responsive to the needs of the group. Therefore, think of the schedule as a guide rather than a strict timetable. We welcome questions and queries as we go along, there are helpers in the room so raise your hand if you need assistance.
+
+We would like to highlight that we have a [code of conduct](https://uniexeterrse.github.io/intro-to-r/code.html) and by attending this workshop you are agreeing to abide by it.
+
+### Pre-requisite Knowledge
+
+This course will not include an introduction to R, or how to setup and use R or Rstudio. It is assumed you are comfortable coding in R and are familiar with:
+
+-   Writing and executing commands in the R console.
+-   Writing functions in R.
+
+If not we recommend that you consult our pre-requisite course **Introduction to R**.
+
+### Course Notes
+
+This tutorial contains the course notes, example code snippets plus explanations, exercises for you to try with solutions and quiz questions to test your knowledge. Attending a workshop on this topic means there are people on hand to help if you have any questions or issues with the materials. However, these have also been designed such that you should also be able to work through them independently.
+
+You can navigate through the sections using the menu on the side. The sections on speed are based on [Measuring Performance](https://adv-r.hadley.nz/perf-measure.html) and [Improving Performance](https://adv-r.hadley.nz/perf-improve.html) by Hadley Wickham.
+
+## Style Guides and Linters
+
+### The Tidyverse Style Guide
+A style guide is a set of rules that embed consistency into your code. One such set of rules are contained in the [Tidyverse Style Guide](https://style.tidyverse.org/)^[Note, our course 'Working With Data in R' covers the main functionality of the Tidyverse.]. These rules are essentially just *opinions*, since there are no hard-and-fast rules to the way you write your code, and there are many different style guides available. We have chosen to discuss the Tidyverse style guide because of its popularity. We could not feasibly cover every point in the Tidyverse Style Guide within this session, but we hope to emphasise some of the main points and tie them together with an example so you can bring the ideas back to your own code after the session. Complete details can be found in the [style guide](https://style.tidyverse.org/). 
+
+Being conscious of consistency in your code can go a long way in improving the ease of collaboration and thus the impact of your code on your research. We will approach consistency from three levels of increasing granularity:
+
+1.    File name
+2.    Structure implemented within a file
+3.    Syntax used within file
+
+### File Naming and Structure
+The first very simple, yet very important, aspect of an R file is its name. When naming your file you should:
+
+1.    Give your file a descriptive name 
+2.    Give your file the extension .R (not .r)
+3.    Avoid whitespace. 
+
+Suppose we have a script that fits a linear model; calling this file `some file.r` violates all of the above. Naming the file `fit-linear-model.R` will make it much easier to locate.
+
+If you have a sequence of files that are intended to be run in a specific order, number them to indicate this. For example, `01-exploratory-analysis.R`, `02-fit-models.R`, `03-plot-results.R`.
+
+If you have to import a set of libraries, do so at the beginning of the file using `library()` as opposed to loading them sporadically throughout the file.
+
+Often, using comments such as `# ---------- ... ------------` can be useful to increase readability and indicate what the purpose of each sub-section in the script is doing. For example, one way of organising a small script could be as follows:
+
+```{r eval=FALSE, include=TRUE}
+# ---------- loading libraries ---------
+
+
+# ---------- defining functions --------
+
+
+# ---------- performing analysis -------
+
+
+# ---------- saving and plotting results ------------
+```
+
+Note, in R using the 'project' structure (add link) or even creating your own R package (add link) can be useful for more involved analyses, though we do not cover those topics here.
+
+### File Syntax
+#### Variables and Functions
+Naming conventions extend from the file itself to the variables, functions and classes in your code; these should be consistent.
+
+Variable and function names should only contain lowercase letters, numbers and underscores. In particular, names should not contain white space. If a variable name contains multiple words, separate them using underscores. For example:
+
+```{r}
+# good
+string_one <-  "hello world!"
+
+# bad
+StringOne <-  "hello world!"
+
+# bad
+stringone <-  "hello world!"
+```
+
+Also, *never* use the names of built in functions or variables e.g. `T`, `mean`, `pi`, `sum` etc.
+
+##### Assignment
+Use ` <- ` for assignment instead of ` = `.
+
+```{r}
+# good
+greeting <- "hello" 
+
+# bad
+greeting = "hello"
+```
+
+#### Horizontal Spacing
+Commas: space as you would in normal English i.e. a space after, and only after, the comma.
+```{r}
+# bad
+ones_matrix <- matrix( 1, 10 ,10 )
+ones_matrix[ , 1]
+
+# good
+twos_matrix <- matrix(2, 10, 10)
+twos_matrix[, 1]
+```
+
+Parentheses: avoid spaces before and after parentheses in function calls, but do include them before and after conditional statements.
+
+```{r}
+word_print_bad <- function (word) {
+  if(word){
+    print( word ) 
+  }
+}
+
+word_print_good <- function(word) {
+  if (word) {
+    print(word) 
+  }
+}
+```
+
+#### Vertical Spacing 
+Excessive whitespace should be avoided, but no whitespace at all is equally as bad. The style guide suggests the following:
+
+-   Avoid empty lines at the start or end of functions.
+-   Only use a single empty line when needed to separate functions or pipes.
+-   It often makes sense to put an empty line before a comment block, to help visually connect the explanation with the code that it applies to.
+
+#### Functions
+Functions are an integral part of R.
+
+#### Control Flow
+
+#### Exercise
+
+Consider the following two versions of R code that perform the same task. Discuss in groups what is good about each implementation and what could be improved.
+
+```{r}
+# file name: file1.r
+
+
+```
+
+```{r}
+# file name: file1.r
+
+
+```
+
+### The Styler package
+
+## Measuring Speed with Microbenchmark
+One way of measuring the time taken to run an R function is to invoke the `Sys.time()` function from the `base` R package. Consider the following toy function:
+
+```{r}
+sleep <- function(sleep_time, print_string = FALSE) {
+  # type checking
+  stopifnot(typeof(sleep_time) == "double", sleep_time >= 0)
+  
+  # sleeping
+  Sys.sleep(sleep_time)
+  
+  # print a string if print_string is TRUE
+  if (print_string) 
+  {
+    print("I am awake now")
+  }
+  
+}
+```
+  
+This function takes an input variable called `sleep_time`, checks that `sleep_time` is a positive number, pauses execution for `sleep_time` seconds, then prints "I am awake now" to the console. Naturally, the functions you may work with are more interesting than this simple toy function, but it remains useful from a pedagogical perspective. Suppose we want to time this function using `Sys.time()`, we can do so as follows:
+
+```{r}
+t_start <- Sys.time()
+sleep(5)
+t_end <- Sys.time()
+
+t_end - t_start
+```
+
+The above code times the execution of `sleep()` exactly once. Due to uncontrollable variations the time taken to run a function will not be exactly the same every time we run it. Hence, we may want to run the function many times to get an idea of the distribution of its run time. To do so we could perform the following:
+
+```{r}
+# Run the function n_runs times and report the average time
+n_runs <- 10
+sleep_time <- 0.1
+time_taken <- system.time(replicate(n_runs, sleep(sleep_time)))
+avg_time <- time_taken["elapsed"] / n_runs
+avg_time
+```
+
+The `microbenchmark()` function included in the `microbenchmark` package provides a more accurate alternative. From the description in the documentation, see `?microbenchmark`, `microbenchmark` does the following:
+
+-   Tries hard to accurately measure only the time take to evaluate the function.
+-   Uses sub-millisecond timing functions built into your OS for increased accuracy.
+
+Let's try it out.
+
+```{r, warning=FALSE}
+# benchmark sleep(0.1) ten times and report the results in nanoseconds
+results <- microbenchmark(sleep(0.1), times = 100, unit = 'ns')
+results_summary <- summary(results)
+results_summary$min/1e9
+results_summary$mean/1e9
+results_summary$max/1e9
+```
+
+The `microbenchmark` function provides additional information over the approaches above, including the minimum, maximum and mean evaluation time. Let's plot a histogram of the results.
+
+```{r}
+hist(results$time/1e9, xlab = "Time (s)", main = "Histogram of Microbenchmark Results")
+```
+
+### Exercise
+Try microbenchmarking one of your own functions.
+```{r exercise1, exercise=TRUE}
+
+```
+
+## Vectorization in R
+For further information, refer to Section 24.5 of [Improving Performance](https://adv-r.hadley.nz/perf-improve.html) by Hadley Wickham.
+
+### Overview
+R is an interpreted language, meaning it is not compiled into machine code before execution like in C or C++. If you really want to dig into the difference, you could start with [this thread](https://stackoverflow.com/questions/3265357/compiled-vs-interpreted-languages). If you don't know what this means, don't panic. All we need to know is that loops, especially **nested** loops are typically slow in interpreted languages. That is, they should be avoided if possible in R.
+
+Although vectorising your code is more than just avoiding loops, one aspect of vectorisation **is** avoiding loops. In particular, I mean avoiding loops of R code. One way of avoiding loops in R is through vectorized functions, which have their loops implemented in C under-the-hood. A vectorized function operates on every element of the vector at once, avoiding looping through the vector, in R, and operating element-by-element. By exploiting vectorization we can potentially write **faster** R code, and it is almost certain you have been doing this without even knowing!
+
+### Examples
+Suppose we want to calculate the cumulative sum of a vector $x$. We could write a function in `R` using a for loop as follows:
+```{r}
+cumsum_R <- function(x) {
+  len_x <- length(x)
+  
+  # best pracitce to initialise a vector of known length, rather than append
+  out <- numeric(len_x)
+  
+  curr_total <- 0
+  
+  for (i in 1:len_x) {
+    curr_total <- curr_total + x[i]
+    out[i] <- curr_total
+  }
+  
+  out
+  
+}
+
+cumsum_R(1:10)
+```
+
+In R there is a built in function called `cumsum()` that can do this for us. You can view the documentation by executing `?cumsum()` in your session, and you will see there are additional members of this family e.g. `cumprod()`. By executing `cumsum` **without brackets** in your session you can see that the `cumsum()` function is calling `.Primitive`; this means that R is calling a function which is implemented entirely in C, so it is going to be **fast**.
+
+```{r}
+cumsum
+```
+
+Let's compare our own naive implementation against the `cumsum()` function provided in the `base` R package.
+
+```{r}
+test_x <- 1:1000
+results <- microbenchmark(cumsum(test_x), cumsum_R(test_x))
+summary(results)
+```
+
+As you can see, our naive implementation is extremely slow in comparison!
+
+### Exercise
+Try to write your own version of the `rowMeans` function in R, using for loops, and compare it with the vectorised version in R. To test your function you can use the following `test_matrix` matrix below.
+```{r exercise2, exercise=TRUE}
+test_matrix <- matrix(1:100,10,10)
+rowMeans(test_matrix)
+
+# Write your code here
+
+# Benchmark here
+```
+
+## Fast Data Manipulation Using the `data.table` Package
+### Overview
+The `data.table` package is designed specifically for efficient manipulation of large datasets. The introductory vignette accompanying the `data.table` package states the following:
+
+**"... if you are interested in reducing programming and compute time tremendously, then this package is for you."**
+
+In research we often deal with large datasets, so this package merits further investigation! We closely follow the aforementioned vignette in this section, which you can view by executing `vignette("datatable-intro", package = "data.table")` in your R session.
+
+It is likely that when analysing your data you structure your workflow as follows:
+
+1.    You read the data.
+2.    You analyse the data e.g. cleaning, grouping, aggregating, filtering etc.
+3.    You write the results to a file and maybe send them to a collaborator.
+
+The `data.table` package speeds up **reading** and **writing** using the following functions:
+
+-   Reading using `fread`. **Similar to `read.csv()` and `read.delim()` but faster and more convenient.**
+-   Writing using `fwrite`. **As write.csv but much faster (e.g. 2 seconds versus 1 minute) and just as flexible.**
+
+<!-- Note, for a function named `my_function()`, the description of the function can be obtained by typing `?my_function()`. -->
+
+The following code uses `fread` to read data stored in a csv file from the `data.table` GitHub repository. We will work with this dataset throughout this section. It contains On-Time flights data from the Bureau of Transportation Statistics for all the flights that departed from New York City airports in 2014. The data is available only for Jan 2014 - October 14.
+
+```{r}
+input <- if (file.exists("flights14.csv")) {
+   "flights14.csv"
+} else {
+  "https://raw.githubusercontent.com/Rdatatable/data.table/master/vignettes/flights14.csv"
+}
+flights <- fread(input)
+flights
+```
+
+Note, `fread` returns a `data.table` object by default, otherwise a `data.frame` with the argument `data.table=FALSE`.
+
+### Analysis
+OK, so points 1. and 3. above can be accelerated pretty easily using `fread` and `fwrite`, but how can we accelerate our analysis? The purpose of this section is to introduce the basic syntax of the `data.table` object for speeding up our analysis (i.e. point 2 above).
+
+In base R, the standard way of storing data is in a `data.frame`. If you attended our 'Working With Data in R' course, one of the motivating factors for using the Tidyverse functionality was that Tidyverse functions were designed with consistent interfaces, meaning the functions accept a `data.frame` object as an input and return a `data.frame` object as an output. The `data.table` package provides an enhanced version of the `data.frame` object.
+
+If not reading the data in using `fread`, a `data.table` can be created from scratch as follows:
+
+```{r}
+DT <- data.table(x = rnorm(200),
+                    y = rnorm(200),
+                    z = c("A", "B"))
+```
+
+The general form of the `data.table` syntax is as follows:
+
+    DT[ i,  j,  by ] # + extra arguments
+        |   |   |
+        |   |    -------> grouped by what?
+        |    -------> what to do?
+         ---> on which rows?
+         
+We should interpret this as "Take `DT`, subset/reorder rows using `i`, then calculate `j`, grouped by `by`."
+   
+#### Selecting Row and Columns
+To subsetting our data, we use the `i` and `j` arguments within `DT[i, j, by]`.
+
+Using `j` to select columns is analogous to `dplyr::select()`:
+```{r, eval=FALSE, include=TRUE}
+# return as vector
+flights[, dep_delay]
+
+#  return as data.table
+flights[, .(dep_delay)]
+#             <int>
+#      1:        14
+#      2:        -3
+#      3:         2
+#      4:        -8
+#      5:         2
+#     ---          
+# 253312:         1
+# 253313:        -5
+# 253314:        -8
+# 253315:        -4
+# 253316:        -5
+```
+Note, the `.()` notation is an alias for `list()` here.
+
+Columns name in a variable can also be selected using `..`. Here, the `..` with `[]` is signalling to `R` to 'look up a level' into the global environment to look for a variable named `my_cols`, reminiscent of using `cd ..` to change directories in a Unix shell.
+
+```{r eval=FALSE, include=TRUE}
+my_cols <- c("dep_delay", "arr_delay")
+flights[, ..my_cols]
+
+#         dep_delay arr_delay
+#             <int>     <int>
+#      1:        14        13
+#      2:        -3        13
+#      3:         2         9
+#      4:        -8       -26
+#      5:         2         1
+#     ---                    
+# 253312:         1       -30
+# 253313:        -5       -14
+# 253314:        -8        16
+# 253315:        -4        15
+# 253316:        -5         1
+```
+
+Using `i` to select rows subject to some condition is analogous to `dplyr::filter()`:
+```{r eval=FALSE, include=TRUE}
+# select rows with a departure delay of more than four hours
+flights[dep_delay > 4]
+
+#         year month   day dep_delay arr_delay carrier origin   dest air_time distance  hour
+#        <int> <int> <int>     <int>     <int>  <char> <char> <char>    <int>    <int> <int>
+#     1:  2014     1     1        14        13      AA    JFK    LAX      359     2475     9
+#     2:  2014     1     1         7        -5      AA    JFK    SFO      365     2586    17
+#     3:  2014     1     1       142       133      AA    JFK    LAX      345     2475    19
+#     4:  2014     1     1        18        69      AA    JFK    ORD      155      740    17
+#     5:  2014     1     1        25        36      AA    JFK    IAH      234     1417    16
+#    ---                                                                                    
+# 80664:  2014    10    31        14        11      UA    EWR    MIA      151     1085    19
+# 80665:  2014    10    31        41        19      UA    EWR    SFO      344     2565    12
+# 80666:  2014    10    31       427       393      UA    EWR    ORD      100      719    21
+# 80667:  2014    10    31        10       -27      UA    EWR    LAX      326     2454    10
+# 80668:  2014    10    31        18       -14      UA    EWR    LAS      291     2227    16
+```
+
+We can combine them both in a natural way:
+```{r eval=FALSE, include=TRUE}
+# select values from departure delay and arrival delay columns, where of more
+# than four hours where departure delay is more than four hours
+flights[dep_delay > 4, .(dep_delay, arr_delay)]
+
+#        dep_delay arr_delay
+#            <int>     <int>
+#     1:        14        13
+#     2:         7        -5
+#     3:       142       133
+#     4:        18        69
+#     5:        25        36
+#    ---                    
+# 80664:        14        11
+# 80665:        41        19
+# 80666:       427       393
+# 80667:        10       -27
+# 80668:        18       -14
+```
+
+#### Subset and Operate
+We can apply the above to perform operations on the columns
+```{r eval=FALSE, include=TRUE}
+# returns a data.frame
+flights[dep_delay > 4, .(mean_delay = mean(dep_delay, na.rm = TRUE), sum_delay = sum(dep_delay, na.rm = TRUE))]
+
+#    mean_delay sum_delay
+#         <num>     <int>
+# 1:   47.27013   3813187
+```
+
+In dplyr, the equivalent would code be:
+
+```{r eval=FALSE, include=TRUE}
+# returns a data.frame
+flights %>%
+  filter(dep_delay > 4) %>%
+  summarise(
+    mean_delay = mean(dep_delay, na.rm = TRUE),
+    sum_delay = sum(dep_delay, na.rm = TRUE)
+  )
+
+#   mean_delay sum_delay
+# 1   47.27013   3813187
+```
+
+Notice, the `data.table` code is more compact, and all operation occurs within the frame of a data.table, i.e., within `[ ... ]`. This is also referred to as 'querying' the `data.table`l; analogous to SQL. Though, arguably, the `dplyr` code is easier to understand.
+
+#### Count
+In `data.table` we can use the special symbol `.N`, see ``?.N``, to count the number of records.
+
+```{r eval=FALSE, include=TRUE}
+# returns a data.table
+flights[dep_delay > 4, .(total_above_four_hours = .N)]
+
+#    total_above_four_hours
+#                     <int>
+# 1:                  80668
+```
+
+In dplyr, the equivalent code would be:
+```{r eval=FALSE, include=TRUE}
+# returns a data.frame
+flights %>%
+  filter(dep_delay > 4) %>%
+  summarise(total_above_four_hours = n())
+
+#   total_above_four_hours
+# 1                  80668
+```
+#### Updating and Removing Columns
+Adding columns can be achieved using the `:=` operator. This adds columns 'by reference', meaning the `data.table` is never copied. To illustrate this, consider the following smaller examples:
+
+```{r eval=FALSE, include=TRUE}
+my_dt <- data.table(x = rnorm(200))
+tracemem(my_dt)
+# [1] "<0x12e44c600>"
+
+my_dt[, z := rnorm(200)]
+tracemem(my_dt)
+# [1] "<0x12e44c600>"
+
+my_df <- data.frame(x = rnorm(200))
+tracemem(my_df)
+# [1] "<0x12e2b6f98>"
+
+my_df <- my_df %>%
+  mutate(z = rnorm(200))
+tracemem(my_df)
+# [1] "<0x10d78b288>"
+```
+
+With the `data.table`, using `:=` within the frame `[ ... ]` is sufficient to add a new column to the `data.table`; we didn't have to assign the result back to `my_dt` using `<-`. Note, the `tracemem()` function shows the addresses are the same for the `my_dt` example, so a copy was not made. However, for the `my_df` example, this was not the case. Much more detail on this behaviour is available in [this vignette](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html).
+
+Removing a column, by reference, can also be achieved using `:=`
+```{r eval=FALSE, include=TRUE}
+my_dt[, z := NULL]
+my_dt
+
+#                x
+#            <num>
+#   1:  1.25869166
+#   2:  0.09387604
+#   3:  0.66252899
+#   4:  0.27757563
+#   5:  0.42300731
+#  ---            
+# 196: -0.15635092
+# 197: -0.40401237
+# 198:  0.21080994
+# 199: -0.68030639
+# 200:  0.44879215
+```
+
+#### Aggregation
+We have discussed the `i` and `j` arguments of `data.table`, now let's discuss `by`.
+
+*Grouping*
+Let's group the flight data by month, and get the mean `dep_delay`.
+```{r eval=FALSE, include=TRUE}
+flights[, .(mean_delay = mean(dep_delay)), by = month]
+
+#     month mean_delay
+#     <int>      <num>
+#  1:     1  22.957624
+#  2:     2  17.809878
+#  3:     3   8.927260
+#  4:     4  10.243083
+#  5:     5  13.684233
+#  6:     6  14.084906
+#  7:     7  16.463060
+#  8:     8  10.012459
+#  9:     9   4.742795
+# 10:    10   7.850555
+```
+
+Let's find the number of flights grouped by month.
+```{r eval=FALSE, include=TRUE}
+flights[, .N, by = month]
+
+#     month     N
+#     <int> <int>
+#  1:     1 22796
+#  2:     2 20813
+#  3:     3 26423
+#  4:     4 25588
+#  5:     5 25522
+#  6:     6 26488
+#  7:     7 27003
+#  8:     8 27450
+#  9:     9 25190
+# 10:    10 26043
+```
+
+*Chaining*
+In the above example where we found the number of flights grouped by month; we can chain compound expressions, for example to arrange the answer in increasing or decreasing order.
+
+```{r eval=FALSE, include=TRUE}
+flights[, .(total_flights = .N), by = month
+        ][
+          order(total_flights, decreasing = TRUE)
+          ]
+```
+
+Note the vertical chaining of the operations.
+```{r eval=FALSE, include=TRUE}
+[ ... 
+  ][
+    ...
+  ]
+```
+
+This helps with readability, analogously to separating pipes `%>%` over separate lines in the Tidyverse!
+
+*Sorting by Grouping Variables*
+The `keyby` argument is available for sorting by the variables you group by, though the following three are all equivalent ways of getting the mean air time of flights leaving from JFK grouped by destination, then ordering the results by destination (increasing).
+
+```{r eval=FALSE, include=TRUE}
+flights[origin == "JFK", .(mean_air_time = mean(air_time)), keyby = .(dest)]
+flights[origin == "JFK", .(mean_air_time = mean(air_time)), by = .(dest), keyby = TRUE]
+
+# using head for smaller print
+head(flights[origin == "JFK", .(mean_air_time = mean(air_time)), by = .(dest)][order(dest)])
+
+# Key: <dest>
+#      dest mean_air_time
+#    <char>         <num>
+# 1:    ABQ     251.71583
+# 2:    ACK      39.53430
+# 3:    ATL     110.49559
+# 4:    AUS     210.75912
+# 5:    BNA     118.59155
+# 6:    BOS      38.07954
+```
+
+
+#### Example: A Data Wrangling Task
+How many minutes does each flight 'make up' on its journey per minute of air time? *Hint: (dep_delay - arr_delay)* 
+
+Order your answer increasing by destination and decreasing by time made up per minute of air time.
+
+```{r exercise_data_table, exercise=TRUE}
+# Write your code here
+
+```
+
+```{r eval=FALSE, include=FALSE}
+# flights[, .(diff_time = (arr_delay - dep_delay)/air_time), by = dest
+#         ][order(diff_time, decreasing = TRUE)
+#           ][order(dest, decreasing = FALSE)
+#             ]
+```
+
+I highly recommend looking through the additional [vignettes](https://cran.r-project.org/web/packages/data.table/vignettes/) for further information on what is happening under the hood in `data.table`.
+
+## Parallelisation Using the `parallel` Package
+The following section is based off of [these notes](https://dept.stat.lsa.umich.edu/~jerrick/courses/stat506_f24/16-parallel-processing.html) written by Josh Errickson at the University of Michigan. Additional information can be found in the [documentation](https://stat.ethz.ch/R-manual/R-devel/library/parallel/doc/parallel.pdf) for the parallel package.
+
+### Overview
+Suppose you have found yourself in one of the following situations:
+
+1.    You have a function $f$ that you need to run **many** times for different input values. 
+2.    You have a large set of functions $f_1, \, \dots\, , f_n$, $n>>1$, that you need to run, each for potentially many different input values.
+
+If you're like me, you'd probably prefer to get straight to analyzing the data produced by the functions as opposed to waiting around all day for them to finish running. This is where parallelization can help you.
+
+We consider the case here where each function evaluation is completely independent of the others. In case 1 above, this is trivial because you're just running the same function for many different input combinations. In the second scenario, this means that the functions are completely unrelated e.g. the output of one function is never used as the input to another.
+
+A core on your computer can be thought of as an individual unit that can execute tasks. The vast majority of modern computers have multiple cores and parallelising your code involves sending independent jobs to different cores on your computer. In `R` one way of doing this is by using a concept called **forking**. 
+
+### Forking (Will not work on Windows)
+Forking in `R` can be achieved using the `parallel` package, but first you should check that forking is actually supported within the environment in which you are developing your `R` code. Do do this, you can use the `supportsMulticore()` function from the `parallelly` package.
+
+```{r}
+supportsMulticore() 
+```
+
+In RStudio, depending on the version, the above may return `FALSE`, meaning forking is **NOT** supported, so you **may** not see any performance enhancements by using forking when running scripts in RStudio. Note I said **may**; as we will see below, using functions from the `parallel` package in Rstudio appear to behave well. However it is highly discouraged as the behaviour can be unexpected.
+
+The advised way to use forking is to run `R` scripts using your terminal. Suppose you have a script called `my-script.R`. There are two ways to use your terminal to run `my-script.R`:
+
+1.    Initiate an R session directly in the terminal, in the same directory as `my-script.R`, by typing `R`. Within the session type `source("my-script.R")`
+2.    Execute `my-script.R` directly using the `Rscript` command in your terminal, i.e. by typing `Rscript my-script.R`
+
+### Exercise
+Implement the above procedure both inside and outside of RStudio, what are the results on your OS?
+
+### Forking - `mclapply()`
+First, let's detect the number of cores available on our machine using `detectCores()` from the `parallel` package:
+```{r}
+num_cores <- detectCores()
+num_cores
+```
+
+On my machine, this returns 12, though on yours it may return something different. The output of `detectCores()` provides a useful guide on deciding how many cores to parallelise across, which can be specified in the `mclapply()` via the `mc.cores` argument. There are several important points here:
+
+1.    A value of two or greater for `mc.cores` is necessary for parallelisation. Setting `mc.cores = 1` will disable parallelisation. 
+2.    It is not the case that choosing $n$ cores will result in a speed up of a factor of $n$. 
+3.    Setting `mc.cores` higher than the number of available cores can actually slow down your code due to the overhead it creates. Using `detectCores()/2` is a useful starting point, and you can experiment from there.
+
+Now let's see `mclapply()` in action. Consider the following toy function, similar to the, which is used simply to represent an expensive function
+
+```{r}
+slow_function <- function(n) {
+  Sys.sleep(1)
+  return(mean(rnorm(1000)))
+}
+```
+
+Run using the regular `lapply()`:
+```{r}
+is <- 1:24
+t1 <- system.time(lapply(is, slow_function))["elapsed"]
+```
+
+Run using parallelisation with `mclapply()` with four cores:
+```{r}
+t4 <- system.time(mclapply(is, slow_function, mc.cores = 4))["elapsed"]
+```
+
+Run using parallelisation with `mclapply()` with eight cores:
+```{r}
+t8 <- system.time(mclapply(is, slow_function, mc.cores = 8))["elapsed"]
+```
+
+Run using parallelisation with `mclapply()` with twelve cores:
+```{r}
+t12 <- system.time(mclapply(is, slow_function, mc.cores = 12))["elapsed"]
+```
+
+Plot the results
+```{r, fig.width=6, fig.height=6}
+ts <- c(t1, t4, t8, t12)
+cs <- c(1, 4, 8, 12)
+plot(cs, ts, type = 'b', bty='l', xlab = "mc.cores", ylab = "Time (s)", pch = 20, main = "Time vs Number of Cores")
+```
+
+### Example
+Try to use `mclapply()` on one of your own functions, both inside and outside of Rstudio. Do you notice any difference in speed? Note `mclapply()` only parallelises over one argument. For multivariate parallelisation, see `mcmapply()`.
+
+## Acceleration via `Rcpp` (advanced)
+### Overview
+C++ is a high-performance, general-purpose programming language that extends C with object-oriented, generic, and functional programming features. If you don't know what those are, or have never used C++ before, do not worry. For us the most important point to note is that it can provide a **fast** alternative to R and can be integrated into our R code. In fact, under the hood, many of the base R functions are themselves written in C. In addition, many R packages on CRAN contain functions written in C++.
+
+The easiest way to use C++ code in an R environment is through the Rcpp package. On MacOS and Linux systems, the Rcpp package is likely to be setup and loaded correctly after executing `install.packages('Rcpp')`, followed by `library(Rcpp)`. On a windows OS, you may need to follow the instructions [here](https://cran.r-project.org/bin/windows/Rtools/) to download Xtools. 
+
+You can check `Rcpp` is set up correctly by trying the following:
+
+```{r}
+evalCpp("2+2")
+```
+
+### Example: Estimating Pi
+Suppose we want to estimate the value of pi. One way of doing this is to use Monte Carlo sampling.
+
+Consider a quarter-circle of radius 1 inside the unit square \([0,1] \times [0,1]\). The equation for the quarter-circle is:
+
+\[
+x^2 + y^2 \leq 1
+\]
+
+Since the area of the full circle is \(\pi\), the quarter-circle has an area of \(\pi/4\). By randomly sampling points inside the square and checking how many fall inside the quarter-circle, we can estimate \(\pi\) using:
+
+\[
+\pi \approx 4 \times \frac{M}{N}
+\]
+
+where \(M\) is the number of points inside the quarter-circle, and \(N\) is the total number of points sampled.
+
+We can plot this set-up:
+
+```{r echo=FALSE, fig.width=6, fig.height=6}
+# Define the quarter-circle function
+theta <- seq(0, pi/2, length.out = 100)
+x <- cos(theta)
+y <- sin(theta)
+
+samps <- runif(1000) |>
+  matrix(ncol = 2)
+
+inside <- samps[sqrt(rowSums(samps^2)) < 1,]
+outside <- samps[sqrt(rowSums(samps^2)) >= 1,]
+
+# Plot the quarter-circle
+plot(x, y, type = "l", lwd = 2, col = 1, xlim = c(0,1), ylim = c(0,1),
+     xlab = "x", ylab = "y", main = "Estimating Pi",
+     xpd = FALSE, bty='l')
+points(x = inside[,1], y = inside[,2], pch = 20, col = 1)
+points(x = outside[,1], y = outside[,2], pch = 20, col = 2)
+```
+
+An implementation of this procedure in R is as follows:
+
+```{r}
+pi_R <- function(n) {
+  
+  # we want n points, each point is in 2D space, so we need to sample m = 2*n
+  # points using runif()
+  m <-  2*n
+  
+  # get m samples - each sample is a row of the matrix 
+  samples <- runif(m) |>
+    matrix(ncol = 2)
+  
+  # how many lie inside the quarter circle?
+  # get the distance between each row and the origin (0,0)
+  n_inside_circle <- sum(sqrt(rowSums(samples^2)) < 1)
+  
+  # estimate pi by multiplying the proportion of points inside the quarter
+  # circle by 4
+  pi_estimate <- (n_inside_circle/n) * 4
+}
+```
+
+Now, we can run the function for increasing $n$, which should converge to the true value of $\pi$.
+```{r}
+# Estimates for different n
+pi_estimate_1 <- pi_R(1)
+pi_estimate_10 <- pi_R(10)
+pi_estimate_100 <- pi_R(100)
+pi_estimate_1000 <- pi_R(1000)
+pi_estimate_10000 <- pi_R(10000)
+
+pi_vec <- c(pi_estimate_1,
+            pi_estimate_10,
+            pi_estimate_100,
+            pi_estimate_1000,
+            pi_estimate_10000)
+
+print(pi_vec)
+```
+
+We can also plot the estimates, and compare them to the value of $\pi$ contained in `R`, which is accessible through `pi` and is denoted by the dashed horizontal line.
+
+```{r}
+plot(c(1,10,100,1000, 10000), 
+     pi_vec, 
+     type ='b', 
+     pch = 20,
+     xlab = "Number of Samples",
+     ylab = "Estimate")
+abline(h = pi, col = 4, lty = 2)
+```
+
+Suppose we want to do the same in C++. We can write the C++ code in a seperate file with a `.cpp`, then call it within `R` using the `sourceCpp()` function provided in the `Rcpp` package. For completeness, the C++ source code contained in the file `pi.cpp` is as follows:
+
+```{Rcpp, eval = FALSE}
+#include "Rcpp.h" 
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+double pi_cpp(int n) {
+  int count_inside = 0;
+  
+  for (int i = 0; i < n; ++i) {
+    double x = static_cast<double>(rand()) / RAND_MAX;
+    double y = static_cast<double>(rand()) / RAND_MAX;
+    
+    if (std::sqrt(x * x + y * y) < 1) {
+      count_inside++;
+    }
+  }
+  
+  return (static_cast<double>(count_inside) / n) * 4.0;
+}
+```
+Loading the function into `R` is as simple as calling `sourceCpp()`:
+```{r}
+sourceCpp("pi.cpp")
+```
+We can now run the function:
+```{r}
+pi_cpp(10000)
+```
+Finally, let's compare it with the `R` implementation using `microbencmark`:
+```{r}
+results <- microbenchmark(pi_R(1e6), pi_cpp(1e6))
+summary(results)
+```
+
+The `C++` version is about twice as fast as the `R` version using 1e6 samples.
