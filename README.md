@@ -1,11 +1,11 @@
 # cfrr-r-tutorials
 
-This GitHub Repository contains the source code for an R package that is used to distribute R tutorials developed by the Coding for Reproducible Research Programme at the University of Exeter. These tutotrials have been developed with the learnr package and are  
+This GitHub Repository contains the source code for an R package that is used to distribute R tutorials developed by the Coding for Reproducible Research Programme at the University of Exeter. These tutorials have been developed with the learnr package.
 
 
 ## Installation
 
-Below we provide complete instructions on how to install the nesesscary dependency packages and open the tutorials. 
+Below we provide complete instructions on how to install the necessary dependency packages and open the tutorials. 
 
 First we need to (install and) load two packages from CRAN to ensure R has the required functions. This can be done with the following code:
 
@@ -63,9 +63,9 @@ Listening on http://127.0.0.1:38555
 +------------------------------------------------------------------------+
 ```
 
-If the tutorial doe snot automatically launch in a new windonw, to launch it copy the web address in this case (http://127.0.0.1:38555) into a web browser of your choice, such as Chrome. 
+If the tutorial does not automatically launch in a new window, to launch it copy the web address in this case (http://127.0.0.1:38555) into a web browser of your choice, such as Chrome. 
 
-You can then start the workshop in this document. You can navigate through the sections using the menu on the side. Please note that the data required for the examples and exercises is preloaded within each interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to apply what you have learned on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
+You can then start the workshop in this document. You can navigate through the sections using the menu on the side. Please note that the data required for the examples and exercises is pre-loaded within each interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to apply what you have learned on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
 
 # Contact details
 
@@ -77,4 +77,4 @@ Contributions to this repository follow those set out by the wider Coding For Re
 
 # Acknowledgements
 
-This materials were developed by Eilis Hannon as part of the Coding For Reproducible Research Programme. 
+These materials were developed by Eilis Hannon and Conor Crilly as part of the Coding For Reproducible Research Programme. 
