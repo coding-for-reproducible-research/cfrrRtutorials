@@ -217,39 +217,30 @@ Performance</a> by Hadley Wickham.</p>
 <h3>The Tidyverse Style Guide</h3>
 <p>A style guide is a set of rules that embed consistency into your
 code. One such set of rules are contained in the <a
-href="https://style.tidyverse.org/">Tidyverse Style Guide</a><a
-href="#section-fn1" class="footnote-ref"
-id="section-fnref1"><sup>1</sup></a>. These rules are essentially just
-<em>opinions</em>, since there are no hard-and-fast rules to the way you
-write your code, and there are many different style guides available. We
-have chosen to discuss the Tidyverse style guide because of its
-popularity. We could not feasibly cover every point in the Tidyverse
-Style Guide within this session, but we hope to emphasise some of the
-main points and tie them together with an example so you can bring the
-ideas back to your own code after the session. Complete details can be
-found in the <a href="https://style.tidyverse.org/">style guide</a>.</p>
+href="https://style.tidyverse.org/">Tidyverse Style Guide</a>. These
+rules are essentially just <em>opinions</em>, since there are no
+hard-and-fast rules to the way you write your code, and there are many
+different style guides available. We have chosen to discuss the
+Tidyverse style guide because of its popularity. We could not feasibly
+cover every point in the Tidyverse Style Guide within this session, but
+we hope to emphasise some of the main points and tie them together with
+an example so you can bring the ideas back to your own code after the
+session. Complete details can be found in the <a
+href="https://style.tidyverse.org/">style guide</a>.</p>
 <p>Being conscious of consistency in your code can go a long way in
-improving the ease of collaboration and thus the impact of your code on
-your research. We will approach consistency from three levels of
-increasing granularity:</p>
+improving the ease of collaboration and the impact of your code on your
+research. We will approach consistency from three levels of increasing
+granularity:</p>
 <ol style="list-style-type: decimal">
 <li>File name</li>
 <li>Structure implemented within a file</li>
 <li>Syntax used within file</li>
 </ol>
-<div class="footnotes footnotes-end-of-section">
-<hr />
-<ol>
-<li id="section-fn1"><p>Note, our course ‘Working With Data in R’ covers
-the main functionality of the Tidyverse.<a href="#section-fnref1"
-class="footnote-back">↩︎</a></p></li>
-</ol>
-</div>
 </div>
 <div id="section-file-naming-and-structure" class="section level3">
 <h3>File Naming and Structure</h3>
-<p>The first very simple, yet very important, aspect of an R file is its
-name. When naming your file you should:</p>
+<p>The first simple yet important aspect of an R file is its name. When
+naming your file you should:</p>
 <ol style="list-style-type: decimal">
 <li>Give your file a descriptive name</li>
 <li>Give your file the extension .R (not .r)</li>
@@ -267,9 +258,9 @@ the file using <code>library()</code> as opposed to loading them
 sporadically throughout the file.</p>
 <p>Often, using comments such as
 <code># ---------- ... ------------</code> can be useful to increase
-readability and indicate what the purpose of each sub-section in the
-script is doing. For example, one way of organising a small script could
-be as follows:</p>
+readability and indicate the purpose of each sub-section in the script.
+For example, one way of organising a small script could be as
+follows:</p>
 <pre class="r"><code># ---------- loading libraries ---------
 
 
@@ -280,9 +271,11 @@ be as follows:</p>
 
 
 # ---------- saving and plotting results ------------</code></pre>
-<p>Note, in R using the ‘project’ structure (add link) or even creating
-your own R package (add link) can be useful for more involved analyses,
-though we do not cover those topics here.</p>
+<p>Note, in R using the <a
+href="https://r4ds.hadley.nz/workflow-scripts.html#projects">project
+structure</a> or even creating your own <a href="https://r-pkgs.org/">R
+package</a> can be useful for more involved analyses, though we do not
+cover those topics here.</p>
 </div>
 <div id="section-file-syntax" class="section level3">
 <h3>File Syntax</h3>
@@ -313,6 +306,17 @@ greeting &lt;- &quot;hello&quot;
 
 # bad
 greeting = &quot;hello&quot;</code></pre>
+</div>
+<div id="section-semi-colons" class="section level5">
+<h5>Semi-colons</h5>
+<p>Don’t use them</p>
+<pre class="r"><code># bad
+x &lt;-  1; y &lt;- 2; z &lt;- 3;
+
+# good
+x &lt;- 1
+y &lt;- 2
+z &lt;- 3</code></pre>
 </div>
 </div>
 <div id="section-horizontal-spacing" class="section level4">
@@ -356,22 +360,163 @@ to.</li>
 </div>
 <div id="section-functions" class="section level4">
 <h4>Functions</h4>
-<p>Functions are an integral part of R.</p>
+<div id="section-setting-up-a-function-quickly" class="section level5">
+<h5>Setting up a function quickly</h5>
+<p>Functions are an integral part of R; the skeleton code for a function
+in R is:</p>
+<pre class="r"><code>name &lt;- function(variables) {
+  
+}</code></pre>
+<p>In RStudio, you can set this up quickly by typing <code>fun</code>
+and hitting the tab key twice on your keyboard.</p>
 </div>
-<div id="section-control-flow" class="section level4">
-<h4>Control Flow</h4>
+<div id="section-returning" class="section level5">
+<h5>Returning</h5>
+<p>You only need to write return in a function for an early return. R
+returns the last evaluated expression by default.</p>
+<pre class="r"><code># good
+celcius_to_fahrenheit_good &lt;- function(temperature){
+  temperature*(9/5) + 32  
+}
+
+# bad
+celcius_to_fahrenheit_bad &lt;- function(temperature){
+  return(temperature*(9/5) + 32)
+}
+
+celcius_to_fahrenheit_good(-20)</code></pre>
+<pre><code>## [1] -4</code></pre>
+<pre class="r"><code>celcius_to_fahrenheit_bad(-20)</code></pre>
+<pre><code>## [1] -4</code></pre>
+<p>Example of early return:</p>
+<pre class="r"><code>random_function &lt;- function(){
+  x &lt;- runif(1)
+  if (x &lt; 0.25){
+    message(&quot;** The number was less than 0.25&quot;)
+    return(x)
+  } else {
+    message(&quot;** The number was greater than 0.25&quot;)
+    random_function()
+  }
+}
+
+xx &lt;- random_function()</code></pre>
+<pre><code>## ** The number was greater than 0.25</code></pre>
+<pre><code>## ** The number was less than 0.25</code></pre>
+<pre class="r"><code>xx</code></pre>
+<pre><code>## [1] 0.07114201</code></pre>
+</div>
+<div id="section-function-arguments" class="section level5">
+<h5>Function Arguments</h5>
+<p>In R, a function’s arguments are typically either: - Data being
+computed on (we can omit the names here) - Computation details (we
+typically use the full names of these)</p>
+<pre class="r"><code># Good
+mean(1:10, na.rm = TRUE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<pre class="r"><code># Bad
+mean(x = 1:10, , FALSE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<pre class="r"><code>mean(, TRUE, x = c(1:10, NA))</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<p>Use the full names of the arguments you specify. In R you can use
+partial matching by specifying a unique prefix of a function argument,
+but this should be avoided as it can create unnecessary ambiguity.</p>
+<pre class="r"><code># bad
+mean(c(1:10, NA), n = TRUE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<pre class="r"><code>mean(c(1:10, NA), na = TRUE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<pre class="r"><code>mean(c(1:10, NA), na. = TRUE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<pre class="r"><code>mean(c(1:10, NA), na.r = TRUE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+<pre class="r"><code># good
+mean(c(1:10, NA), na.rm = TRUE)</code></pre>
+<pre><code>## [1] 5.5</code></pre>
+</div>
 </div>
 <div id="section-exercise" class="section level4">
 <h4>Exercise</h4>
 <p>Consider the following two versions of R code that perform the same
 task. Discuss in groups what is good about each implementation and what
 could be improved.</p>
-<pre class="r"><code># file name: file1.r</code></pre>
-<pre class="r"><code># file name: file1.r</code></pre>
+<pre class="r"><code># file name: my code.r
+
+# this script does stuff
+library(ggplot2);library(dplyr)
+
+dat = mtcars; DATA2=dat %&gt;% select(mpg);result=mean(DATA2$mpg)
+PrintMean &lt;- function(d){
+  m &lt;- mean(d$mpg); print(paste(&quot;The mean is:&quot;,m)); return(m)
+}
+
+ShowHist &lt;- function(d,bars=10){
+  ggplot(data = d,aes(x= mpg))+geom_histogram(bins=bars)
+}
+
+x = PrintMean(d=dat)</code></pre>
+<pre><code>## [1] &quot;The mean is: 20.090625&quot;</code></pre>
+<pre class="r"><code>ShowHist(dat, ba=12)</code></pre>
+<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-12-1.png" width="624" /></p>
+<pre class="r"><code># file name: calculate_mpg_summary.R
+
+# ----------------------------------------
+# Load required libraries
+# ----------------------------------------
+library(ggplot2)
+library(dplyr)
+
+# ----------------------------------------
+# Prepare data
+# ----------------------------------------
+mtcars_data &lt;- mtcars
+mpg_data &lt;- mtcars_data %&gt;% select(mpg)
+
+# ----------------------------------------
+# Function to calculate mean MPG
+# ----------------------------------------
+print_mean_mpg &lt;- function(data) {
+  mean_value &lt;- mean(data$mpg)
+  print(paste(&quot;The mean MPG is:&quot;, mean_value))
+  mean_value
+}
+
+# ----------------------------------------
+# Function to show histogram of MPG
+# ----------------------------------------
+show_histogram &lt;- function(data, bins = 10) {
+  ggplot(data = data, aes(x = mpg)) +
+    geom_histogram(bins = bins)
+}
+
+# ----------------------------------------
+# Run analysis
+# ----------------------------------------
+mean_mpg &lt;- print_mean_mpg(mtcars_data)</code></pre>
+<pre><code>## [1] &quot;The mean MPG is: 20.090625&quot;</code></pre>
+<pre class="r"><code>show_histogram(data = mtcars_data, bins = 12)</code></pre>
+<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-13-1.png" width="624" /></p>
 </div>
 </div>
-<div id="section-the-styler-package" class="section level3">
-<h3>The Styler package</h3>
+<div id="section-the-styler-and-lintr-packages" class="section level3">
+<h3>The Styler and lintr packages</h3>
+<p>The <code>styler</code> and <code>lintr</code> package are two useful
+packages for formatting your code according to the Tidyverse style
+guide. You can install them from CRAN in the usual way:</p>
+<pre class="r"><code>install.packages(&quot;styler&quot;)
+install.packages(&quot;lintr&quot;)</code></pre>
+<div id="section-exercise-1" class="section level4">
+<h4>Exercise</h4>
+<p>Paste the file <code>my code.r</code> from the example above into a
+new <code>R</code> file. Peruse the documentation of the
+<code>styler</code> package and experiment with the
+<code>style_file</code> function. How does it work on the
+<code>my code.r</code>example?</p>
+<p>Do the same with the <code>lintr</code> package, using the
+<code>lint</code> function. How does it work with the
+<code>my code.r</code>example?</p>
+</div>
 </div>
 </div>
 <div id="section-measuring-speed-with-microbenchmark"
@@ -406,7 +551,7 @@ sleep(5)
 t_end &lt;- Sys.time()
 
 t_end - t_start</code></pre>
-<pre><code>## Time difference of 5.007596 secs</code></pre>
+<pre><code>## Time difference of 5.00781 secs</code></pre>
 <p>The above code times the execution of <code>sleep()</code> exactly
 once. Due to uncontrollable variations the time taken to run a function
 will not be exactly the same every time we run it. Hence, we may want to
@@ -419,7 +564,7 @@ time_taken &lt;- system.time(replicate(n_runs, sleep(sleep_time)))
 avg_time &lt;- time_taken[&quot;elapsed&quot;] / n_runs
 avg_time</code></pre>
 <pre><code>## elapsed 
-##  0.1044</code></pre>
+##  0.1039</code></pre>
 <p>The <code>microbenchmark()</code> function included in the
 <code>microbenchmark</code> package provides a more accurate
 alternative. From the description in the documentation, see
@@ -436,17 +581,17 @@ increased accuracy.</li>
 results &lt;- microbenchmark(sleep(0.1), times = 100, unit = &#39;ns&#39;)
 results_summary &lt;- summary(results)
 results_summary$min/1e9</code></pre>
-<pre><code>## [1] 0.09860008</code></pre>
+<pre><code>## [1] 0.09856572</code></pre>
 <pre class="r"><code>results_summary$mean/1e9</code></pre>
-<pre><code>## [1] 0.1029018</code></pre>
+<pre><code>## [1] 0.1020332</code></pre>
 <pre class="r"><code>results_summary$max/1e9</code></pre>
-<pre><code>## [1] 0.1034885</code></pre>
+<pre><code>## [1] 0.1035121</code></pre>
 <p>The <code>microbenchmark</code> function provides additional
 information over the approaches above, including the minimum, maximum
 and mean evaluation time. Let’s plot a histogram of the results.</p>
 <pre class="r"><code>hist(results$time/1e9, xlab = &quot;Time (s)&quot;, main = &quot;Histogram of Microbenchmark Results&quot;)</code></pre>
-<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-12-1.png" width="624" /></p>
-<div id="section-exercise-1" class="section level3">
+<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-19-1.png" width="624" /></p>
+<div id="section-exercise-2" class="section level3">
 <h3>Exercise</h3>
 Try microbenchmarking one of your own functions.
 <div class="tutorial-exercise" data-label="exercise1"
@@ -524,13 +669,13 @@ results &lt;- microbenchmark(cumsum(test_x), cumsum_R(test_x))
 summary(results)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"cumsum(test_x)","2":"1.927","3":"2.173","4":"2.37677","5":"2.296","6":"2.624","7":"3.034","8":"100"},{"1":"cumsum_R(test_x)","2":"29.110","3":"29.643","4":"51.20982","5":"30.873","6":"31.283","7":"2073.370","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"cumsum(test_x)","2":"1.763","3":"2.0500","4":"2.31117","5":"2.255","6":"2.378","7":"8.282","8":"100"},{"1":"cumsum_R(test_x)","2":"29.971","3":"30.8115","4":"46.29269","5":"30.996","6":"31.160","7":"1531.350","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>As you can see, our naive implementation is extremely slow in
 comparison!</p>
 </div>
-<div id="section-exercise-2" class="section level3">
+<div id="section-exercise-3" class="section level3">
 <h3>Exercise</h3>
 Try to write your own version of the <code>rowMeans</code> function in
 R, using for loops, and compare it with the vectorised version in R. To
@@ -978,7 +1123,7 @@ the session type <code>source("my-script.R")</code></li>
 <code>Rscript my-script.R</code></li>
 </ol>
 </div>
-<div id="section-exercise-3" class="section level3">
+<div id="section-exercise-4" class="section level3">
 <h3>Exercise</h3>
 <p>Implement the above procedure both inside and outside of RStudio,
 what are the results on your OS?</p>
@@ -1032,7 +1177,7 @@ cores:</p>
 <pre class="r"><code>ts &lt;- c(t1, t4, t8, t12)
 cs &lt;- c(1, 4, 8, 12)
 plot(cs, ts, type = &#39;b&#39;, bty=&#39;l&#39;, xlab = &quot;mc.cores&quot;, ylab = &quot;Time (s)&quot;, pch = 20, main = &quot;Time vs Number of Cores&quot;)</code></pre>
-<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-41-1.png" width="576" /></p>
+<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-48-1.png" width="576" /></p>
 </div>
 <div id="section-example" class="section level3">
 <h3>Example</h3>
@@ -1089,7 +1234,7 @@ we can estimate <span class="math inline">\(\pi\)</span> using:</p>
 inside the quarter-circle, and <span class="math inline">\(N\)</span> is
 the total number of points sampled.</p>
 <p>We can plot this set-up:</p>
-<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-43-1.png" width="576" /></p>
+<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-50-1.png" width="576" /></p>
 <p>An implementation of this procedure in R is as follows:</p>
 <pre class="r"><code>pi_R &lt;- function(n) {
   
@@ -1126,7 +1271,7 @@ pi_vec &lt;- c(pi_estimate_1,
             pi_estimate_10000)
 
 print(pi_vec)</code></pre>
-<pre><code>## [1] 4.0000 2.8000 3.2800 3.1400 3.1608</code></pre>
+<pre><code>## [1] 4.0000 2.8000 3.1200 3.1640 3.1768</code></pre>
 <p>We can also plot the estimates, and compare them to the value of
 <span class="math inline">\(\pi\)</span> contained in <code>R</code>,
 which is accessible through <code>pi</code> and is denoted by the dashed
@@ -1138,7 +1283,7 @@ horizontal line.</p>
      xlab = &quot;Number of Samples&quot;,
      ylab = &quot;Estimate&quot;)
 abline(h = pi, col = 4, lty = 2)</code></pre>
-<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-46-1.png" width="624" /></p>
+<p><img src="Improve-Your-R-Code_files/figure-html/unnamed-chunk-53-1.png" width="624" /></p>
 <p>Suppose we want to do the same in C++. We can write the C++ code in a
 seperate file with a <code>.cpp</code>, then call it within
 <code>R</code> using the <code>sourceCpp()</code> function provided in
@@ -1168,14 +1313,14 @@ double pi_cpp(int n) {
 <pre class="r"><code>sourceCpp(&quot;pi.cpp&quot;)</code></pre>
 <p>We can now run the function:</p>
 <pre class="r"><code>pi_cpp(10000)</code></pre>
-<pre><code>## [1] 3.1308</code></pre>
+<pre><code>## [1] 3.1448</code></pre>
 <p>Finally, let’s compare it with the <code>R</code> implementation
 using <code>microbencmark</code>:</p>
 <pre class="r"><code>results &lt;- microbenchmark(pi_R(1e6), pi_cpp(1e6))
 summary(results)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"pi_R(1e+06)","2":"13.110406","3":"13.354397","4":"13.913150","5":"13.505092","6":"13.75271","7":"45.665349","8":"100"},{"1":"pi_cpp(1e+06)","2":"8.310003","3":"8.332942","4":"8.367482","5":"8.346062","6":"8.37013","7":"9.431927","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["expr"],"name":[1],"type":["fct"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"pi_R(1e+06)","2":"13.300031","3":"13.456569","4":"14.628693","5":"13.59226","6":"13.680408","7":"68.591811","8":"100"},{"1":"pi_cpp(1e+06)","2":"8.296842","3":"8.313222","4":"8.332514","5":"8.31933","6":"8.330585","7":"8.825783","8":"100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>The <code>C++</code> version is about twice as fast as the
@@ -1183,14 +1328,15 @@ summary(results)</code></pre>
 <script type="application/shiny-prerendered" data-context="server-start">
 suppressPackageStartupMessages({
   suppressMessages({
+    library(data.table)
+    library(dplyr)
     library(learnr)
     library(microbenchmark)
-    library(profvis)
-    library(Rcpp)
     library(parallel)
     library(parallelly)
-    library(dplyr)
-    library(data.table)
+    library(profvis)
+    library(Rcpp)
+    library(styler)
   })
 })
 
@@ -1229,10 +1375,10 @@ output$`tutorial-exercise-exercise1-output` <- renderUI({
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::store_exercise_cache(structure(list(label = "exercise1", global_setup = structure(c("suppressPackageStartupMessages({", 
-"  suppressMessages({", "    library(learnr)", "    library(microbenchmark)", 
-"    library(profvis)", "    library(Rcpp)", "    library(parallel)", 
-"    library(parallelly)", "    library(dplyr)", "    library(data.table)", 
-"  })", "})", "", "# Note, after making changes you must call devtools::install(\"cfrrRtutorials\"),", 
+"  suppressMessages({", "    library(data.table)", "    library(dplyr)", 
+"    library(learnr)", "    library(microbenchmark)", "    library(parallel)", 
+"    library(parallelly)", "    library(profvis)", "    library(Rcpp)", 
+"    library(styler)", "  })", "})", "", "# Note, after making changes you must call devtools::install(\"cfrrRtutorials\"),", 
 "# then run the appropriate tutorial to actually see the implemented changes", 
 "# using learnr::run_tutorial()"), chunk_opts = list(label = "setup", 
     echo = FALSE)), setup = NULL, chunks = list(list(label = "exercise1", 
@@ -1271,10 +1417,10 @@ output$`tutorial-exercise-exercise2-output` <- renderUI({
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::store_exercise_cache(structure(list(label = "exercise2", global_setup = structure(c("suppressPackageStartupMessages({", 
-"  suppressMessages({", "    library(learnr)", "    library(microbenchmark)", 
-"    library(profvis)", "    library(Rcpp)", "    library(parallel)", 
-"    library(parallelly)", "    library(dplyr)", "    library(data.table)", 
-"  })", "})", "", "# Note, after making changes you must call devtools::install(\"cfrrRtutorials\"),", 
+"  suppressMessages({", "    library(data.table)", "    library(dplyr)", 
+"    library(learnr)", "    library(microbenchmark)", "    library(parallel)", 
+"    library(parallelly)", "    library(profvis)", "    library(Rcpp)", 
+"    library(styler)", "  })", "})", "", "# Note, after making changes you must call devtools::install(\"cfrrRtutorials\"),", 
 "# then run the appropriate tutorial to actually see the implemented changes", 
 "# using learnr::run_tutorial()"), chunk_opts = list(label = "setup", 
     echo = FALSE)), setup = NULL, chunks = list(list(label = "exercise2", 
@@ -1316,10 +1462,10 @@ output$`tutorial-exercise-exercise_data_table-output` <- renderUI({
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::store_exercise_cache(structure(list(label = "exercise_data_table", global_setup = structure(c("suppressPackageStartupMessages({", 
-"  suppressMessages({", "    library(learnr)", "    library(microbenchmark)", 
-"    library(profvis)", "    library(Rcpp)", "    library(parallel)", 
-"    library(parallelly)", "    library(dplyr)", "    library(data.table)", 
-"  })", "})", "", "# Note, after making changes you must call devtools::install(\"cfrrRtutorials\"),", 
+"  suppressMessages({", "    library(data.table)", "    library(dplyr)", 
+"    library(learnr)", "    library(microbenchmark)", "    library(parallel)", 
+"    library(parallelly)", "    library(profvis)", "    library(Rcpp)", 
+"    library(styler)", "  })", "})", "", "# Note, after making changes you must call devtools::install(\"cfrrRtutorials\"),", 
 "# then run the appropriate tutorial to actually see the implemented changes", 
 "# using learnr::run_tutorial()"), chunk_opts = list(label = "setup", 
     echo = FALSE)), setup = NULL, chunks = list(list(label = "exercise_data_table", 
@@ -1357,7 +1503,7 @@ learnr:::store_exercise_cache(structure(list(label = "exercise_data_table", glob
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","cli","compiler","data.table","datasets","digest","dplyr","ellipsis","evaluate","fansi","fastmap","fontawesome","generics","glue","graphics","grDevices","htmltools","htmlwidgets","httpuv","jquerylib","jsonlite","knitr","later","learnr","lifecycle","magrittr","methods","microbenchmark","mime","parallel","parallelly","pillar","pkgconfig","profvis","promises","R6","Rcpp","renv","rlang","rmarkdown","rprojroot","rstudioapi","sass","shiny","stats","tibble","tidyselect","tools","utf8","utils","vctrs","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.5.0","4.4.1","0.8.0","1.1.0","2.3.2","3.6.3","4.4.1","1.17.0","4.4.1","0.6.37","1.1.4","0.3.2","1.0.3","1.0.6","1.2.0","0.5.2","0.1.3","1.7.0","4.4.1","4.4.1","0.5.8.1","1.6.4","1.6.15","0.1.4","1.8.8","1.49","1.3.2","0.11.5","1.0.4","2.0.3","4.4.1","1.5.0","0.12","4.4.1","1.42.0","1.9.0","2.0.3","0.4.0","1.3.0","2.5.1","1.0.13","1.1.0","1.1.4","2.28","2.0.4","0.16.0","0.4.9","1.9.1","4.4.1","3.2.1","1.2.1","4.4.1","1.2.4","4.4.1","0.6.5","3.0.2","0.50","1.8-4","2.3.10"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","cli","colorspace","compiler","data.table","datasets","digest","dplyr","ellipsis","evaluate","fansi","farver","fastmap","fontawesome","generics","ggplot2","glue","graphics","grDevices","grid","gtable","htmltools","htmlwidgets","httpuv","jquerylib","jsonlite","knitr","labeling","later","learnr","lifecycle","magrittr","methods","microbenchmark","mime","munsell","parallel","parallelly","pillar","pkgconfig","profvis","promises","purrr","R.cache","R.methodsS3","R.oo","R.utils","R6","Rcpp","renv","rlang","rmarkdown","rprojroot","rstudioapi","sass","scales","shiny","stats","styler","tibble","tidyselect","tools","utf8","utils","vctrs","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.5.0","4.4.1","0.8.0","1.1.0","2.3.2","3.6.3","2.1-1","4.4.1","1.17.0","4.4.1","0.6.37","1.1.4","0.3.2","1.0.3","1.0.6","2.1.2","1.2.0","0.5.2","0.1.3","3.5.1","1.7.0","4.4.1","4.4.1","4.4.1","0.3.5","0.5.8.1","1.6.4","1.6.15","0.1.4","1.8.8","1.49","0.4.3","1.3.2","0.11.5","1.0.4","2.0.3","4.4.1","1.5.0","0.12","0.5.1","4.4.1","1.42.0","1.9.0","2.0.3","0.4.0","1.3.0","1.0.2","0.16.0","1.8.2","1.27.0","2.13.0","2.5.1","1.0.13","1.1.0","1.1.4","2.28","2.0.4","0.16.0","0.4.9","1.3.0","1.9.1","4.4.1","1.10.3","3.2.1","1.2.1","4.4.1","1.2.4","4.4.1","0.6.5","3.0.2","0.50","1.8-4","2.3.10"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>

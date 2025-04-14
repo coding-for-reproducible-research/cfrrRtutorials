@@ -7,14 +7,15 @@ runtime: shiny_prerendered
 ```{r setup, echo = FALSE}
 suppressPackageStartupMessages({
   suppressMessages({
+    library(data.table)
+    library(dplyr)
     library(learnr)
     library(microbenchmark)
-    library(profvis)
-    library(Rcpp)
     library(parallel)
     library(parallelly)
-    library(dplyr)
-    library(data.table)
+    library(profvis)
+    library(Rcpp)
+    library(styler)
   })
 })
 
@@ -77,16 +78,16 @@ You can navigate through the sections using the menu on the side. The sections o
 ## Style Guides and Linters
 
 ### The Tidyverse Style Guide
-A style guide is a set of rules that embed consistency into your code. One such set of rules are contained in the [Tidyverse Style Guide](https://style.tidyverse.org/)^[Note, our course 'Working With Data in R' covers the main functionality of the Tidyverse.]. These rules are essentially just *opinions*, since there are no hard-and-fast rules to the way you write your code, and there are many different style guides available. We have chosen to discuss the Tidyverse style guide because of its popularity. We could not feasibly cover every point in the Tidyverse Style Guide within this session, but we hope to emphasise some of the main points and tie them together with an example so you can bring the ideas back to your own code after the session. Complete details can be found in the [style guide](https://style.tidyverse.org/). 
+A style guide is a set of rules that embed consistency into your code. One such set of rules are contained in the [Tidyverse Style Guide](https://style.tidyverse.org/). These rules are essentially just *opinions*, since there are no hard-and-fast rules to the way you write your code, and there are many different style guides available. We have chosen to discuss the Tidyverse style guide because of its popularity. We could not feasibly cover every point in the Tidyverse Style Guide within this session, but we hope to emphasise some of the main points and tie them together with an example so you can bring the ideas back to your own code after the session. Complete details can be found in the [style guide](https://style.tidyverse.org/). 
 
-Being conscious of consistency in your code can go a long way in improving the ease of collaboration and thus the impact of your code on your research. We will approach consistency from three levels of increasing granularity:
+Being conscious of consistency in your code can go a long way in improving the ease of collaboration and the impact of your code on your research. We will approach consistency from three levels of increasing granularity:
 
 1.    File name
 2.    Structure implemented within a file
 3.    Syntax used within file
 
 ### File Naming and Structure
-The first very simple, yet very important, aspect of an R file is its name. When naming your file you should:
+The first simple yet important aspect of an R file is its name. When naming your file you should:
 
 1.    Give your file a descriptive name 
 2.    Give your file the extension .R (not .r)
@@ -98,7 +99,7 @@ If you have a sequence of files that are intended to be run in a specific order,
 
 If you have to import a set of libraries, do so at the beginning of the file using `library()` as opposed to loading them sporadically throughout the file.
 
-Often, using comments such as `# ---------- ... ------------` can be useful to increase readability and indicate what the purpose of each sub-section in the script is doing. For example, one way of organising a small script could be as follows:
+Often, using comments such as `# ---------- ... ------------` can be useful to increase readability and indicate the purpose of each sub-section in the script. For example, one way of organising a small script could be as follows:
 
 ```{r eval=FALSE, include=TRUE}
 # ---------- loading libraries ---------
@@ -113,7 +114,7 @@ Often, using comments such as `# ---------- ... ------------` can be useful to i
 # ---------- saving and plotting results ------------
 ```
 
-Note, in R using the 'project' structure (add link) or even creating your own R package (add link) can be useful for more involved analyses, though we do not cover those topics here.
+Note, in R using the [project structure](https://r4ds.hadley.nz/workflow-scripts.html#projects) or even creating your own [R package](https://r-pkgs.org/) can be useful for more involved analyses, though we do not cover those topics here.
 
 ### File Syntax
 #### Variables and Functions
@@ -143,6 +144,18 @@ greeting <- "hello"
 
 # bad
 greeting = "hello"
+```
+
+##### Semi-colons
+Don't use them 
+```{r}
+# bad
+x <-  1; y <- 2; z <- 3;
+
+# good
+x <- 1
+y <- 2
+z <- 3
 ```
 
 #### Horizontal Spacing
@@ -181,27 +194,150 @@ Excessive whitespace should be avoided, but no whitespace at all is equally as b
 -   It often makes sense to put an empty line before a comment block, to help visually connect the explanation with the code that it applies to.
 
 #### Functions
-Functions are an integral part of R.
+##### Setting up a function quickly
+Functions are an integral part of R; the skeleton code for a function in R is:
+```{r}
+name <- function(variables) {
+  
+}
+```
 
-#### Control Flow
+In RStudio, you can set this up quickly by typing `fun` and hitting the tab key twice on your keyboard. 
+
+##### Returning
+You only need to write return in a function for an early return. R returns the last evaluated expression by default.
+```{r}
+# good
+celcius_to_fahrenheit_good <- function(temperature){
+  temperature*(9/5) + 32  
+}
+
+# bad
+celcius_to_fahrenheit_bad <- function(temperature){
+  return(temperature*(9/5) + 32)
+}
+
+celcius_to_fahrenheit_good(-20)
+celcius_to_fahrenheit_bad(-20)
+```
+
+Example of early return:
+```{r}
+random_function <- function(){
+  x <- runif(1)
+  if (x < 0.25){
+    message("** The number was less than 0.25")
+    return(x)
+  } else {
+    message("** The number was greater than 0.25")
+    random_function()
+  }
+}
+
+xx <- random_function()
+xx
+```
+
+##### Function Arguments
+In R, a function's arguments are typically either:
+-   Data being computed on (we can omit the names here)
+-   Computation details (we typically use the full names of these)
+
+```{r}
+# Good
+mean(1:10, na.rm = TRUE)
+
+# Bad
+mean(x = 1:10, , FALSE)
+mean(, TRUE, x = c(1:10, NA))
+```
+
+Use the full names of the arguments you specify. In R you can use partial matching by specifying a unique prefix of a function argument, but this should be avoided as it can create unnecessary ambiguity.
+```{r}
+# bad
+mean(c(1:10, NA), n = TRUE)
+mean(c(1:10, NA), na = TRUE)
+mean(c(1:10, NA), na. = TRUE)
+mean(c(1:10, NA), na.r = TRUE)
+
+# good
+mean(c(1:10, NA), na.rm = TRUE)
+
+```
 
 #### Exercise
 
 Consider the following two versions of R code that perform the same task. Discuss in groups what is good about each implementation and what could be improved.
 
 ```{r}
-# file name: file1.r
+# file name: my code.r
 
+# this script does stuff
+library(ggplot2);library(dplyr)
 
+dat = mtcars; DATA2=dat %>% select(mpg);result=mean(DATA2$mpg)
+PrintMean <- function(d){
+  m <- mean(d$mpg); print(paste("The mean is:",m)); return(m)
+}
+
+ShowHist <- function(d,bars=10){
+  ggplot(data = d,aes(x= mpg))+geom_histogram(bins=bars)
+}
+
+x = PrintMean(d=dat)
+ShowHist(dat, ba=12)
 ```
 
 ```{r}
-# file name: file1.r
+# file name: calculate_mpg_summary.R
 
+# ----------------------------------------
+# Load required libraries
+# ----------------------------------------
+library(ggplot2)
+library(dplyr)
 
+# ----------------------------------------
+# Prepare data
+# ----------------------------------------
+mtcars_data <- mtcars
+mpg_data <- mtcars_data %>% select(mpg)
+
+# ----------------------------------------
+# Function to calculate mean MPG
+# ----------------------------------------
+print_mean_mpg <- function(data) {
+  mean_value <- mean(data$mpg)
+  print(paste("The mean MPG is:", mean_value))
+  mean_value
+}
+
+# ----------------------------------------
+# Function to show histogram of MPG
+# ----------------------------------------
+show_histogram <- function(data, bins = 10) {
+  ggplot(data = data, aes(x = mpg)) +
+    geom_histogram(bins = bins)
+}
+
+# ----------------------------------------
+# Run analysis
+# ----------------------------------------
+mean_mpg <- print_mean_mpg(mtcars_data)
+show_histogram(data = mtcars_data, bins = 12)
 ```
 
-### The Styler package
+### The Styler and lintr packages
+The `styler` and `lintr` package are two useful packages for formatting your code according to the Tidyverse style guide. You can install them from CRAN in the usual way:
+```{r eval=FALSE, include=TRUE}
+install.packages("styler")
+install.packages("lintr")
+```
+
+#### Exercise
+Paste the file `my code.r` from the example above into a new `R` file. Peruse the documentation of the `styler` package and experiment with the `style_file` function. How does it work on the `my code.r`example?
+
+Do the same with the `lintr` package, using the `lint` function. How does it work with the `my code.r`example?
 
 ## Measuring Speed with Microbenchmark
 One way of measuring the time taken to run an R function is to invoke the `Sys.time()` function from the `base` R package. Consider the following toy function:
