@@ -47,7 +47,7 @@ You can launch any of these tutorials with the `run_tutorial` function from the 
 For example to launch the "Introduction to Regression with R " tutorial which is an introductory course , you can run:
 
 ```
-learnr::run_tutorial("Introduction to Regression with R", "cfrrRtutorials")
+learnr::run_tutorial("Introduction to Regression with R", "cfrrRtutorials", clean = TRUE)
 ```
 
 When ready the tutorial may launch in a new window, or (more likely) there will be some output in red in the **Jobs** console that says something like:  
