@@ -905,7 +905,7 @@ The easiest way to use C++ code in an R environment is through the Rcpp package.
 
 You can check `Rcpp` is set up correctly by trying the following:
 
-```{r}
+```{r, eval = FALSE}
 evalCpp("2+2")
 ```
 
@@ -1025,15 +1025,15 @@ double pi_cpp(int n) {
 }
 ```
 Loading the function into `R` is as simple as calling `sourceCpp()`:
-```{r}
+```{r, eval = FALSE}
 sourceCpp("pi.cpp")
 ```
 We can now run the function:
-```{r}
+```{r, eval = FALSE}
 pi_cpp(10000)
 ```
 Finally, let's compare it with the `R` implementation using `microbencmark`:
-```{r}
+```{r, eval = FALSE}
 results <- microbenchmark(pi_R(1e6), pi_cpp(1e6))
 summary(results)
 ```
