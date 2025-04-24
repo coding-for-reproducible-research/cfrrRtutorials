@@ -866,23 +866,29 @@ is <- 1:24
 t1 <- system.time(lapply(is, slow_function))["elapsed"]
 ```
 
-Run using parallelisation with `mclapply()` with four cores:
+The variable below is used to stop the code running if the user's OS is windows as forking is not supported on windows.
 ```{r}
+# is_os_unix <- .Platform$OS.type != "unix"
+my_os <- (.Platform$OS.type == "unix")
+```
+
+Run using parallelisation with `mclapply()` with four cores:
+```{r, eval = my_os}
 t4 <- system.time(mclapply(is, slow_function, mc.cores = 4))["elapsed"]
 ```
 
 Run using parallelisation with `mclapply()` with eight cores:
-```{r}
+```{r, eval = my_os}
 t8 <- system.time(mclapply(is, slow_function, mc.cores = 8))["elapsed"]
 ```
 
 Run using parallelisation with `mclapply()` with twelve cores:
-```{r}
+```{r, eval = my_os}
 t12 <- system.time(mclapply(is, slow_function, mc.cores = 12))["elapsed"]
 ```
 
 Plot the results
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=6, fig.height=6, eval = my_os}
 ts <- c(t1, t4, t8, t12)
 cs <- c(1, 4, 8, 12)
 plot(cs, ts, type = 'b', bty='l', xlab = "mc.cores", ylab = "Time (s)", pch = 20, main = "Time vs Number of Cores")
