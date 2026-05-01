@@ -63,9 +63,9 @@ Listening on http://127.0.0.1:38555
 +------------------------------------------------------------------------+
 ```
 
-If the tutorial does not automatically launch in a new window, to launch it copy the web address in this case (http://127.0.0.1:38555) into a web browser of your choice, such as Chrome. 
+If the tutorial doesn’t automatically open in a new window, copy the web address shown on your screen (for example, it might look like `http://127.0.0.1:38555`, but the number will differ on your machine) and paste it into any web browser such as Chrome.
 
-You can then start the workshop in this document. You can navigate through the sections using the menu on the side. Please note that the data required for the examples and exercises is pre-loaded within each interactive document, so the commands/exercises only work within it. They won't work with the Rstudio console. When you come to apply what you have learned on your own datasets, you will need to ensure your data is loaded and edit the syntax to model the relevant variables. 
+You can now begin the workshop within this interactive document. Use the menu on the left to move between sections. Please note that all example data and exercise datasets are pre‑loaded into the document, so the commands will only run correctly here and not in the standard RStudio console. When you apply these skills to your own data, you’ll need to load your datasets and adapt the code to reflect your own variables.
 
 # Contact details
 
