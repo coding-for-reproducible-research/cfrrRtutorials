@@ -73,7 +73,7 @@ Please contact CodingForReproducibleResearch@exeter.ac.uk for details on these w
 
 # Contributions guidelines
 
-Contributions to this repository follow those set out by the wider Coding For Reproducible Research Programme. Details can be found here:<insert link>.
+Contributions to this repository follow those set out by the wider Coding For Reproducible Research Programme. [Details can be found here](https://coding-for-reproducible-research.github.io/CfRR_Courses/contributing/contributing.html).
 
 # Acknowledgements
 
